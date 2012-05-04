@@ -151,3 +151,97 @@ class BaseDataDict(object):
         import random
         random.shuffle (self.Dict ())
 
+
+class Result:
+    # 构造函数
+    # boolVal: bool 类型，指定结果值
+    # attrList: dict 类型，可以附加多个数据结果
+    # attrVal: 指定数据结果词典中的值是否可以被修改
+    def __init__ (self, boolVal, attrList = None, attrVal = None):
+        # 如果 boolVal 参数非 bool 类型，则抛出异常。否则将其值赋给类的私有成员
+        if not isinstance (boolVal, bool):
+            raise TypeError, boolVal
+        self.__BoolValue = boolVal
+
+        # 如果 attrList 参数非词典类型，则将其置为空词典
+        if not isinstance (attrList, dict):
+            attrList = {}
+
+        # 如果 attrVal 参数为被设置或者其类型非 bool 类型，则将其值设为 False
+        if attrVal is None or not isinstance (attrVal, bool):
+            attrVal = False
+
+        self.__EnableSetAttrValue = True # 暂时允许设置属性值
+
+        for k, v in attrList.items ():
+            self.__setattr__ (k, v)
+        self.__EnableSetAttrValue = attrVal # 根据用户设置去允许或禁止修改属性值
+
+    # 本类对象实例用于条件判断时该函数将被调用
+    def __nonzero__ (self):
+        return self.__BoolValue
+
+    # 是否为内部属性
+    def __isPrivateAttr (self, key):
+        if key[1:].find ('_') >= 0:
+            return True
+        return False
+
+    def __getAttrName (self, key):
+        #if key[1:].find ('_') >= 0:
+        if self.__isPrivateAttr (key):
+            return key
+
+        return key.lower ().strip ()
+        # if tkey not in self.__dict__.keys ():
+        #    raise AttributeError, key
+        # return tkey
+        #print self.__dict__.keys ()
+        # for k in self.__dict__.keys ():
+        #     print k.lower ().strip ()
+        #     if k.lower ().strip () == tkey:
+        #         return tkey
+        # print tkey
+        #raise AttributeError, key
+
+    # def __setattr__ (self, key, value):
+    #     #self.__getAttrName (key)
+    #     #self.__Items[self.__getAttrName (key)] = value
+    #     tkey = key.lower ().strip ()
+    #     try:
+    #         self.__Items[tkey] = value
+    #     except:
+    #         pass
+
+    def __setattr__ (self, key, value):
+        if not self.__isPrivateAttr (key) and not self.__EnableSetAttrValue: # 如果禁止修改属性值并且不是私有属性则返回
+            return
+        tkey = self.__getAttrName (key)
+        d = self.__dict__
+        d[tkey] = value
+
+    def __getattr__ (self, key):
+        tkey = self.__getAttrName (key)
+        if tkey not in self.__dict__:
+            raise KeyError, tkey
+        return self.__dict__[tkey]
+
+    def __contains__ (self, key):
+        key = self.__getAttrName (key)
+        return key in self.__dict__.keys ()
+
+    def __eq__ (self, other):
+        if isinstance (other, bool):
+            self.__BoolValue = other
+        elif isinstance (other, KXResult):
+            self.__BoolValue = other.__BoolValue
+        else:
+            raise TypeError, other
+
+    # 将本内类数据转为可打印的字符串形式
+    def __str__ (self):
+        strval = {'result': self.__BoolValue}
+        for k in self.__dict__:
+            if not self.__isPrivateAttr (k):
+                strval [k] = self.__dict__[k]
+        return str (strval)
