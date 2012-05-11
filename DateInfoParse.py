@@ -3,6 +3,7 @@
 
 #from BaseType import BaseDataList, BaseDataDict
 from BaseType import Result
+from MediaRule import MediaProcessRule
 import datetime
 import exif
 import os
@@ -47,56 +48,6 @@ class DateTimeStringParser (object):
         return dt
 
 
-#####################################################
-# 存放需要被检查解析的媒体的类型及其处理方法的类
-# 
-class MediaProcessRule  (object):
-    def __init__ (self, extList, partnerExt = None, methodList = []):
-        self.__ExtList     = []
-        self.__PartnerExt  = partnerExt
-        self.__ParseMethod = methodList
-
-        for v in extList:
-            if v[0] <> '.':
-                v = "." + v
-            self.__ExtList.append (os.path.normcase (v))
-        if isinstance (partnerExt, str) and partnerExt[0] <> '.':
-            partnerExt = "." + partnerExt
-            self.__PartnerExt = os.path.normcase (partnerExt)
-        else:
-            self.__partnerExt = None
-
-    # 返回本对象可处理的文件扩展名列表
-    def ExtList (self):
-        return self.__ExtList
-
-    # 返回伴侣文件扩展名
-    def PartnerFileExt (self):
-        return self.__PartnerExt
-
-    # 伴侣文件列表是否有伴侣文件
-    def HasPartner (self):
-        return self.__PartnerExt <> None
-
-    # 返回媒体文件分析方法列表
-    def ParseMethod (self):
-        return self.__ParseMethod
-
-    # 检查参数指定文件的扩展名是否在本类所能处理文件类型中
-    def IsRuleFile (self, filename):
-        ext = os.path.splitext (os.path.normcase(filename))[1]
-        return ext in self.__ExtList
-
-    # 检查参数指定文件是否为伴侣文件
-    def IsPartnerFile (self, filename):
-        ext = os.path.splitext (os.path.normcase(filename))[1]
-        return ext == self.__PartnerExt
-
-    # 对参数中指定的全路径文件名进行分析处理
-    def DoProcess (self, fullpath):
-        pass
-
-
 
 #####################################################
 # 存放需要被检查解析的媒体的类型及其处理方法的类
@@ -106,10 +57,48 @@ class MediaDateProcessRule  (MediaProcessRule):
     FILENAME = 2
     FILEDATE = 3
 
-    def __init__ (self, extList, partnerExt = None, methodList = [EXIF, FILENAME, FILEDATE]):
-        MediaProcessRule.__init__ (self, extList, partnerExt, methodList)
+
+    def __init__ (self, extList, partnerExt = None, partnerFlag = MediaProcessRule.PF_FOLLOWMAIN, methodList = [EXIF, FILENAME, FILEDATE]):
+        MediaProcessRule.__init__ (self, extList, partnerExt, partnerFlag, methodList)
 
 
+    # 对参数中指定的全路径文件名进行分析处理
+    def DoProcess (self, fullpath):
+        # 检查是否为可处理的文件类型
+        if self.IsRuleFile (fullpath):
+            # 如果是伴侣文件则直接返回
+            if self.IsPartnerFile (fullpath):
+                return Result (False, {'error':2})
+
+            # 非伴侣文件
+            else:
+                dt = None
+                # 如果有伴侣文件
+                if self.HasPartner ():
+                    # 获取伴侣文件名
+                    pfile = self.GetPartnerFilename (fullpath)
+
+                    # 按指定方法从伴侣文件中获取日期信息
+                    if self.GetFlags () and self.PF_GETINFO:
+                        dt = self.GetMediaDate (pfile)
+
+                # dt 如果为 None 有两种情况
+                # 一种是其有伴侣文件并通过伴侣文件获取日期信息失败
+                # 二是其无伴侣文件， dt 初始化值为 None
+                if dt is None:
+                    dt = self.GetMediaDate (fullpath)
+
+                # 获取日期信息失败
+                if dt is None:
+                    return Result (False, {'error':3})
+
+                # 返回格式化后的日期字符串
+                return Result (True, {'data':dt.strftime ("%Y-%m-%d")})
+        else:
+            return Result (False, {'error':1})
+
+
+    # 内部使用函数，循环使用所用可用的方法解析媒体日期信息
     def GetMediaDate (self, fullpath):
         dt = None
         # 遍历媒体解析方法列表
@@ -122,31 +111,7 @@ class MediaDateProcessRule  (MediaProcessRule):
         return dt
         
 
-    # 对参数中指定的全路径文件名进行分析处理
-    def DoProcess (self, fullpath):
-        # 检查是否为可处理的文件类型
-        if self.IsRuleFile (fullpath):
-            # 如果是伴侣文件则直接返回 None
-            if self.IsPartnerFile (fullpath):
-                return Result (False)
-
-            # 如果有伴侣文件
-            elif self.HasPartner ():
-                pass
-
-            # 无伴侣文件
-            else:
-                dt = self.GetMediaDate (fullpath)
-                
-                if dt is None:
-                    return Result (False)
-
-                # 返回格式化后的日期字符串
-                return Result (True, {'data':dt.strftime ("%Y-%m-%d")})
-        else:
-            return Result (False)
-
-
+    # 内部使用函数，根据指定分析方法去分析指定媒体文件日期信息
     def AnalysisMedia (self, fullpath, method = EXIF):
         if method == self.EXIF:
             tags = exif.parse (fullpath, 0, 0);
@@ -183,8 +148,8 @@ class MediaDateProcessRule  (MediaProcessRule):
 if __name__ == "__main__":
     # http://zh.wikipedia.org/zh-hk/RAW
     tl = (MediaDateProcessRule (["jpg", "raw", "crw", "cr2", "rw2", "nef", "nrw", "arw", "srf", "sr2", "pef", "ptx", "srw"]), \
-          MediaDateProcessRule (["avi", "mov"], "thm"), \
-          MediaDateProcessRule (["m2ts"], "modd"), \
+          MediaDateProcessRule (["avi", "mov"], "thm", MediaDateProcessRule.PF_FOLLOWMAIN or MediaDateProcessRule.PF_GETINFO), \
+          MediaDateProcessRule (["m2ts"], "modd", MediaDateProcessRule.PF_GETINFO), \
           MediaDateProcessRule (["mts"]), \
           MediaDateProcessRule (["m4v", "mp4"]) \
           )
@@ -195,6 +160,8 @@ if __name__ == "__main__":
 
     print (tl[0].DoProcess ("1.jpg"))
     print (tl[0].DoProcess ("2.jpg"))
+
+    #print (tl[1].DoProcess ("c:\\w\\3.avi"))
 
 
     # flc = FileLocationCell ("c:\\t")
