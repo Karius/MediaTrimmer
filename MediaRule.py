@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from BaseType import Result
 import os
 
 #####################################################
@@ -60,6 +61,13 @@ class MediaProcessRule  (object):
         ext = os.path.splitext (os.path.normcase(filename))[1]
         return ext == self.__PartnerExt
 
+    # 根据伴侣文件名返回主文件名列表
+    def GetMainFilenameList (self, partnerName):
+        r = []
+        for v in self.__ExtList:
+            r.append (os.path.splitext (partnerName)[0] + v)
+        return r
+
     # 根据主文件名称返回伴侣文件全路径
     def GetPartnerFilename (self, mainfilename):
         return os.path.splitext (mainfilename)[0] + self.PartnerFileExt ()
@@ -68,3 +76,23 @@ class MediaProcessRule  (object):
     def DoProcess (self, fullpath):
         pass
 
+
+
+#####################################################
+# 存放需要被检查解析的媒体的类型及其处理方法的类
+# 
+class MediaRuleManager (object):
+    def __init__ (self, ruleObjList = []):
+        self.__RuleList = ruleObjList
+
+    def IsMediaRelevantFile (self, fullpath):
+        for rule in self.__RuleList:
+            if rule.IsRuleFile (fullpath) or rule.IsPartnerFile (fullpath):
+                return Result (True, {'reason':1, 'rule':rule})
+        return Result (False)
+
+    def DoAction (self, fullpath):
+        rule = self.IsMediaRelevantFile (fullpath)
+        if rule:
+            return rule.rule.DoProcess(fullpath)
+        return Result (False, {'reason':1})

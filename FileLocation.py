@@ -41,6 +41,10 @@ class FileLocationCell (object):
     def Has (self, fullpath):
         return os.path.normcase (fullpath) in self.__SrcFileList
 
+    # 返回文件列表
+    def FileList (self):
+        return self.__SrcFileList
+
     # 返回列表中的文件数量
     def Size (self):
         return len (self.__SrcFileList)

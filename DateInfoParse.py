@@ -43,7 +43,10 @@ class DateTimeStringParser (object):
                 _m = int (dtList[4])
                 if len (dtList) >= 6:
                     _s = int (dtList[5])
-            dt = datetime.datetime (_Y, _M, _D, _h, _m, _s)
+            try:
+                dt = datetime.datetime (_Y, _M, _D, _h, _m, _s)
+            except ValueError:
+                dt = None
 
         return dt
 
@@ -64,38 +67,53 @@ class MediaDateProcessRule  (MediaProcessRule):
 
     # 对参数中指定的全路径文件名进行分析处理
     def DoProcess (self, fullpath):
+
+        dt = None
+
         # 检查是否为可处理的文件类型
         if self.IsRuleFile (fullpath):
-            # 如果是伴侣文件则直接返回
-            if self.IsPartnerFile (fullpath):
-                return Result (False, {'error':2})
 
-            # 非伴侣文件
+            # 如果有伴侣文件，按指定方法从伴侣文件中获取日期信息
+            if self.HasPartner () and (self.GetFlags () and self.PF_GETINFO):
+                # 获取伴侣文件名
+                pfile = self.GetPartnerFilename (fullpath)
+                dt = self.GetMediaDate (pfile)
+
+            # dt 如果为 None 有两种情况
+            # 一种是其有伴侣文件并通过伴侣文件获取日期信息失败
+            # 二是其无伴侣文件， dt 初始化值为 None
+            if dt is None:
+                dt = self.GetMediaDate (fullpath)
+
+
+        # 如果当前处理的是伴侣文件
+        elif self.IsPartnerFile (fullpath):
+
+            # 如果指定从伴侣文件中获取日期信息则按指定方法从伴侣文件中获取日期信息
+            if self.GetFlags () and self.PF_GETINFO:
+                dt = self.GetMediaDate (fullpath)
+
+            # 否则从主文件中获取日期信息
             else:
-                dt = None
-                # 如果有伴侣文件
-                if self.HasPartner ():
-                    # 获取伴侣文件名
-                    pfile = self.GetPartnerFilename (fullpath)
+                # 获取符合该伴侣文件的主文件名
+                mainFilenameList = self.GetMainFilenameList (fullpath)
+                mainFilename = None
+                for v in mainFilenameList:
+                    if os.path.exists (v):
+                        mainFilename = v
+                        dt = self.GetMediaDate (mainFilename)
 
-                    # 按指定方法从伴侣文件中获取日期信息
-                    if self.GetFlags () and self.PF_GETINFO:
-                        dt = self.GetMediaDate (pfile)
-
-                # dt 如果为 None 有两种情况
-                # 一种是其有伴侣文件并通过伴侣文件获取日期信息失败
-                # 二是其无伴侣文件， dt 初始化值为 None
-                if dt is None:
-                    dt = self.GetMediaDate (fullpath)
-
-                # 获取日期信息失败
-                if dt is None:
-                    return Result (False, {'error':3})
-
-                # 返回格式化后的日期字符串
-                return Result (True, {'data':dt.strftime ("%Y-%m-%d")})
         else:
             return Result (False, {'error':1})
+
+
+        # 获取日期信息失败
+        if dt is None:
+            return Result (False, {'error':3})
+
+        # 返回格式化后的日期字符串
+        return Result (True, {'data':dt.strftime ("%Y-%m-%d")})
+
 
 
     # 内部使用函数，循环使用所用可用的方法解析媒体日期信息
@@ -149,7 +167,7 @@ if __name__ == "__main__":
     # http://zh.wikipedia.org/zh-hk/RAW
     tl = (MediaDateProcessRule (["jpg", "raw", "crw", "cr2", "rw2", "nef", "nrw", "arw", "srf", "sr2", "pef", "ptx", "srw"]), \
           MediaDateProcessRule (["avi", "mov"], "thm", MediaDateProcessRule.PF_FOLLOWMAIN or MediaDateProcessRule.PF_GETINFO), \
-          MediaDateProcessRule (["m2ts"], "modd", MediaDateProcessRule.PF_GETINFO), \
+          MediaDateProcessRule (["m2ts"], "modd", MediaDateProcessRule.PF_FOLLOWMAIN), \
           MediaDateProcessRule (["mts"]), \
           MediaDateProcessRule (["m4v", "mp4"]) \
           )
@@ -160,6 +178,8 @@ if __name__ == "__main__":
 
     print (tl[0].DoProcess ("1.jpg"))
     print (tl[0].DoProcess ("2.jpg"))
+
+    print (tl[2].DoProcess ("20120402183751.m2ts"), tl[2].DoProcess ("20120402183751.modd"))
 
     #print (tl[1].DoProcess ("c:\\w\\3.avi"))
 

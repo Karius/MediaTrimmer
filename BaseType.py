@@ -226,6 +226,9 @@ class Result:
             raise KeyError, tkey
         return self.__dict__[tkey]
 
+    def __repr__ (self):
+        return self.__str__ ()
+
     def __contains__ (self, key):
         key = self.__getAttrName (key)
         return key in self.__dict__.keys ()
