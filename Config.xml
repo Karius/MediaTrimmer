@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+  <name id="DateAnalyst">
+    <rule method="date">
+      <ext>jpg;raw;crw;cr2;rw2;nef;nrw;arw;srf;sr2;pef;ptx;srw</ext>
+      <partner></partner>
+      <method>EXIF;FILENAME;FILEDATE</method>
+    </rule>
+    <rule method="date">
+      <ext>avi;mov</ext>
+      <partner>thm</partner>
+      <flags>PF_FOLLOWMAIN;PF_GETINFO</flags>
+      <method>EXIF;FILENAME;FILEDATE</method>
+    </rule>
+    <rule method="date">
+      <ext>m2ts</ext>
+      <partner>modd</partner>
+      <flags>PF_FOLLOWMAIN</flags>
+      <method>EXIF;FILENAME;FILEDATE</method>
+    </rule>
+    <rule method="date">
+      <ext>mts</ext>
+      <method>EXIF;FILENAME;FILEDATE</method>
+    </rule>
+    <rule method="date">
+      <ext>m4v;mp4;3gp</ext>
+      <method>EXIF;FILENAME;FILEDATE</method>
+    </rule>
+    <output>
+      <head>@echo off\n</head>
+      <bodysingle>call :moveto "?SRC_MEDIA_FILE?" "?TARGET_DIR?" "?EXISTS_DIR?"\n</bodysingle>
+      <tail><![CDATA[
+goto :EOF
+
+rem ##########################################################
+rem %1 待移动的文件全路径
+rem %2 正常移动到的目标路径
+rem %3 当目标文件已存在时将移动到的路径
+:moveto
+if exist "%~2\%~n1%~x1" (
+   call :movefileto %1 %3
+) else (
+   call :movefileto %1 %2
+)
+goto :EOF
+
+
+rem %1 待移动的文件全路径
+rem %2 移动到的目标路径
+:movefileto
+if not exist %2 md %2
+move %1 %2
+goto :EOF
+
+
+rem ###########################################################
+rem 该过程为上面两个过程的合体
+rem %1 待移动的文件全路径
+rem %2 正常移动到的目标路径
+rem %3 当目标文件已存在时将移动到的路径
+:movetofull
+if exist "%~2\%~n1%~x1" (
+   if not exist %3 md %3
+   move %1 %3
+) else (
+   if not exist %2 md %2
+   move %1 %2
+)
+goto :EOF
+]]>
+      </tail>
+    </output>
+  </name>
+</config>
