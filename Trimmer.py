@@ -58,8 +58,9 @@ class MediaTrimmer (object):
         #f.write (cmdAll)
         f.close ()
 
-
-if __name__ == "__main__":
+####################################################################
+def Main (argv):
+    # 设置系统默认编码为 utf-8。如果不设置在 decode ('utf-8').encode ('GBK') 时将会出现 UnicodeValueError 之类的异常
     # http://blog.csdn.net/kiki113/article/details/4062063
     # 看第三段
     import sys
@@ -67,32 +68,62 @@ if __name__ == "__main__":
     sys.setdefaultencoding('utf-8')
 
 
-    pCfgID        = "DateAnalyst"
-    pCmdName      = "1a.cmd"
-    pMediaSrcRoot = "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM"
-    pMediaTargetRoot = pMediaSrcRoot
-    pMediaExistsRoot = pMediaSrcRoot
+    # pCfgID        = "DateAnalyst"
+    # pCmdName      = "1a.cmd"
+    # pMediaSrcRoot = "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM"
+
+    pCfgID        = None
+    pCmdName      = "output.cmd"
+    pMediaSrcRoot = None
+    pMediaTargetRoot = None
+    pMediaExistsRoot = None
+
+    import getopt
+    try:
+        opts, args = getopt.getopt (argv, "c:i:m:t:e", ["cmdname=", "id=", "mediaroot=", "targetroot=", "existsroot="])
+
+        for opt, arg in opts:
+            if opt in ("-c", "--cmdname"):
+                pCmdName = arg
+            elif opt in ("-i", "--id"):
+                pCfgID = arg
+            elif opt in ("-m", "--mediaroot"):
+                pMediaSrcRoot = arg
+            elif opt in ("-t", "--targetroot"):
+                pMediaTargetRoot = arg
+            elif opt in ("-e", "--existsroot"):
+                pMediaExistsRoot = arg
+    except:
+        pass
+
+    if pCfgID is None:
+        print ("Config ID is null!")
+        exit (1)
+
+    if pMediaSrcRoot is None:
+        print ("Media root dir is null!")
+        exit (1)
+    elif not os.path.exists (pMediaSrcRoot):
+        print ("Media root dir is not exists!")
+        exit (1)
+
 
     mtc = MTConfig ()
-    mtc.ReadConfig ("Config.xml")
+    if not mtc.ReadConfig ("Config.xml"):
+        print ("Config.xml not exists.")
+        exit (2)
 
     cfg = mtc.GetConfig (pCfgID)
 
     if cfg is None:
-        exit (1)
-
-    # mt = MediaTrimmer (cfg, [MediaDateProcessRule (["jpg", "raw", "crw", "cr2", "rw2", "nef", "nrw", "arw", "srf", "sr2", "pef", "ptx", "srw"]), \
-    #                              MediaDateProcessRule (["avi", "mov"], "thm", MediaDateProcessRule.PF_FOLLOWMAIN | MediaDateProcessRule.PF_GETINFO), \
-    #                              MediaDateProcessRule (["m2ts"], "modd", MediaDateProcessRule.PF_FOLLOWMAIN), \
-    #                              MediaDateProcessRule (["mts"]), \
-    #                              MediaDateProcessRule (["m4v", "mp4"]), \
-    #                              MediaDateProcessRule (["3gp"])
-    #                          ])
-
-
+        print ("cfg id (%s) not exists" % (pCfgID))
+        exit (3)
 
     mt = MediaTrimmer (cfg)
-            
-    #mt.Scan ("d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM", "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM", "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM\_Repeat")
 
     mt.Scan (pCmdName, pMediaSrcRoot, pMediaTargetRoot, pMediaExistsRoot)
+
+
+if __name__ == "__main__":
+    import sys
+    Main (sys.argv[1:])
