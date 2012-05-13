@@ -2,9 +2,13 @@
 <config>
   <name id="DateAnalyst">
     <rule method="date">
-      <ext>jpg;raw;crw;cr2;rw2;nef;nrw;arw;srf;sr2;pef;ptx;srw</ext>
+      <ext>jpg</ext>
       <partner></partner>
       <method>EXIF;FILENAME;FILEDATE</method>
+    </rule>
+    <rule method="date">
+      <ext>raw;crw;cr2;rw2;nef;nrw;arw;srf;sr2;pef;ptx;srw</ext>
+      <method>FILENAME;FILEDATE</method>
     </rule>
     <rule method="date">
       <ext>avi;mov</ext>
@@ -28,7 +32,7 @@
     </rule>
     <output>
       <head>@echo off\n</head>
-      <bodysingle>call :moveto "?SRC_MEDIA_FILE?" "?TARGET_DIR?" "?EXISTS_DIR?"\n</bodysingle>
+      <bodysingle>call :moveto "?SRC_MEDIA_ROOT_DIR?" "?TARGET_ROOT_DIR?" "?EXISTS_ROOT_DIR?"\n</bodysingle>
       <tail><![CDATA[
 goto :EOF
 
