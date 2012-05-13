@@ -98,26 +98,26 @@ def Main (argv):
 
     if pCfgID is None:
         print ("Config ID is null!")
-        exit (1)
+        sys.exit (1)
 
     if pMediaSrcRoot is None:
         print ("Media root dir is null!")
-        exit (1)
+        sys.exit (1)
     elif not os.path.exists (pMediaSrcRoot):
         print ("Media root dir is not exists!")
-        exit (1)
+        sys.exit (1)
 
 
     mtc = MTConfig ()
     if not mtc.ReadConfig ("Config.xml"):
         print ("Config.xml not exists.")
-        exit (2)
+        sys.exit (2)
 
     cfg = mtc.GetConfig (pCfgID)
 
     if cfg is None:
         print ("cfg id (%s) not exists" % (pCfgID))
-        exit (3)
+        sys.exit (3)
 
     mt = MediaTrimmer (cfg)
 
