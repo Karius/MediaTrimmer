@@ -31,7 +31,7 @@ class MediaTrimmer (object):
         if targetDir is None:
             targetDir = rootDir
         if existsDir is None:
-            existsDir = os.path.join (rootDir, "_Repeat")
+            existsDir = os.path.join (targetDir, "_Repeat")
 
         fileList = ScanDir (rootDir, level)
 
@@ -49,7 +49,7 @@ class MediaTrimmer (object):
             cellExistsDir = os.path.join (existsDir, cell.TargetPath ())
             for mediaName in cell.FileList ():
                 #cmdBody = cmdBody + 'call :moveto "%s" "%s" "%s"\n' % (mediaName, os.path.join (targetDir, cell.TargetPath ()), os.path.join (existsDir, cell.TargetPath ()))
-                line = self.__Cfg.cmd_body_single.replace ("?SRC_MEDIA_FILE?", mediaName).replace ("?TARGET_DIR?", cellTargetDir).replace ("?EXISTS_DIR?", cellExistsDir)
+                line = self.__Cfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
                 cmdBody = cmdBody + line
 
         cmdAll = (self.__Cfg.cmd_head + cmdBody + self.__Cfg.cmd_tail).replace ("\\n", "\n")
