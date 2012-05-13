@@ -1,4 +1,6 @@
 *.pyc
 *.jpg
 *.exe
-
+*.log
+dist
+build
