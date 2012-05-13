@@ -25,11 +25,12 @@ class MediaProcessRule  (object):
             if v[0] <> '.':
                 v = "." + v
             self.__ExtList.append (os.path.normcase (v))
-        if isinstance (partnerExt, str) and partnerExt[0] <> '.':
+        if isinstance (partnerExt, basestring) and partnerExt[0] <> '.':
             partnerExt = "." + partnerExt
             self.__PartnerExt = os.path.normcase (partnerExt)
         else:
-            self.__partnerExt = None
+            self.__PartnerExt = None
+
 
     # 返回本对象可处理的文件扩展名列表
     def ExtList (self):
@@ -59,6 +60,7 @@ class MediaProcessRule  (object):
     # 检查参数指定文件是否为伴侣文件
     def IsPartnerFile (self, filename):
         ext = os.path.splitext (os.path.normcase(filename))[1]
+        #print ext, self.__PartnerExt
         return ext == self.__PartnerExt
 
     # 根据伴侣文件名返回主文件名列表

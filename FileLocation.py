@@ -10,7 +10,7 @@ import os
 class FileLocationCell (object):
     # target : 目标文件夹
     def __init__ (self, target = ""):
-        self.__SrcFileList = BaseDataDict ()
+        self.__SrcFileDict = BaseDataDict ()
         self.__TargetPath  = target
 
     # 设置目标路径
@@ -34,20 +34,21 @@ class FileLocationCell (object):
     def Add (self, fullpath):
         if not os.path.isabs (fullpath):
             return False
-        self.__SrcFileList[os.path.normcase (fullpath)] = os.path.split (fullpath)
+        #self.__SrcFileDict[os.path.normcase (fullpath)] = os.path.split (fullpath)
+        self.__SrcFileDict[os.path.normcase (fullpath)] = fullpath
         return True
 
     # 检查参数中的文件是否已存在列表中（需要全路径文件）
     def Has (self, fullpath):
-        return os.path.normcase (fullpath) in self.__SrcFileList
+        return os.path.normcase (fullpath) in self.__SrcFileDict
 
     # 返回文件列表
     def FileList (self):
-        return self.__SrcFileList
+        return self.__SrcFileDict
 
     # 返回列表中的文件数量
     def Size (self):
-        return len (self.__SrcFileList)
+        return len (self.__SrcFileDict)
 
 #####################################################
 # 用于管理 FileLocationCell 类的类

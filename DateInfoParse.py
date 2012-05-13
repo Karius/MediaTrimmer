@@ -103,6 +103,8 @@ class MediaDateProcessRule (MediaProcessRule):
                         mainFilename = v
                         dt = self.GetMediaDate (mainFilename)
 
+                #print fullpath, dt
+
         else:
             return Result (False, {'error':1})
 
