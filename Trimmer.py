@@ -11,11 +11,12 @@ import os
 
 
 class MediaTrimmer (object):
-    def __init__ (self, cfg):
-        self.__Cfg                 = cfg
+    def __init__ (self, analystCfg, outputCfg):
+        self.__analystCfg = analystCfg
+        self.__outputCfg  = outputCfg
 
         mediaRuleList = []
-        for rule in cfg.ruleList:
+        for rule in self.__analystCfg.ruleList:
             if rule.typeid == "date":
                 ruleObj = MediaDateProcessRule (rule.extList, rule.partner, rule.flags, rule.methodList)
             else:
@@ -49,10 +50,11 @@ class MediaTrimmer (object):
             cellExistsDir = os.path.join (existsDir, cell.TargetPath ())
             for mediaName in cell.FileList ():
                 #cmdBody = cmdBody + 'call :moveto "%s" "%s" "%s"\n' % (mediaName, os.path.join (targetDir, cell.TargetPath ()), os.path.join (existsDir, cell.TargetPath ()))
-                line = self.__Cfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
+                line = self.__outputCfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
                 cmdBody = cmdBody + line
 
-        cmdAll = (self.__Cfg.cmd_head + cmdBody + self.__Cfg.cmd_tail).replace ("\\n", "\n")
+        cmdAll = (self.__outputCfg.cmd_head + cmdBody + self.__outputCfg.cmd_tail).replace ("\\n", "\n")
+
         f = file(outputCmdName, "w")
         f.write (cmdAll.decode('utf-8', 'ignore').encode('GBK'))
         #f.write (cmdAll)
@@ -72,32 +74,42 @@ def Main (argv):
     # pCmdName      = "1a.cmd"
     # pMediaSrcRoot = "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM"
 
-    pCfgID        = None
-    pCmdName      = "output.cmd"
+    pAnalystCfgID = None
+    pOutputCfgID  = None
+    pCmdName      = "Go.cmd"
+    pConfigFile   = "Config.xml"
     pMediaSrcRoot = None
     pMediaTargetRoot = None
     pMediaExistsRoot = None
 
     import getopt
     try:
-        opts, args = getopt.getopt (argv, "c:i:m:t:e", ["cmdname=", "id=", "mediaroot=", "targetroot=", "existsroot="])
+        opts, args = getopt.getopt (argv, "c:a:m:t:e:s", ["cmdname=", "analystid=", "outputid=", "mediaroot=", "targetroot=", "existsroot=", "config="])
 
         for opt, arg in opts:
             if opt in ("-c", "--cmdname"):
                 pCmdName = arg
-            elif opt in ("-i", "--id"):
-                pCfgID = arg
+            elif opt in ("-a", "--analystid"):
+                pAnalystCfgID = arg
+            elif opt in ("-o", "--outputid"):
+                pOutputCfgID = arg
             elif opt in ("-m", "--mediaroot"):
                 pMediaSrcRoot = arg
             elif opt in ("-t", "--targetroot"):
                 pMediaTargetRoot = arg
             elif opt in ("-e", "--existsroot"):
                 pMediaExistsRoot = arg
+            elif opt in ("-s", "--config"):
+                pConfigFile = arg
     except:
         pass
 
-    if pCfgID is None:
-        print ("Config ID is null!")
+    if pAnalystCfgID is None:
+        print ("Config ID(Analyst) is null!")
+        sys.exit (1)
+
+    if pOutputCfgID is None:
+        print ("Config ID(Output) is null!")
         sys.exit (1)
 
     if pMediaSrcRoot is None:
@@ -109,17 +121,21 @@ def Main (argv):
 
 
     mtc = MTConfig ()
-    if not mtc.ReadConfig ("Config.xml"):
+    if not mtc.ReadConfig (pConfigFile):
         print ("Config.xml not exists.")
         sys.exit (2)
 
-    cfg = mtc.GetConfig (pCfgID)
+    analystCfg = mtc.GetAnalystConfig (pAnalystCfgID)
+    outputCfg  = mtc.GetOutputConfig (pOutputCfgID)
 
-    if cfg is None:
-        print ("cfg id (%s) not exists" % (pCfgID))
+    if analystCfg is None:
+        print ("analystCfg id (%s) not exists" % (pAnalystCfgID))
+        sys.exit (3)
+    if outputCfg is None:
+        print ("outputCfg id (%s) not exists" % (pOutputCfgID))
         sys.exit (3)
 
-    mt = MediaTrimmer (cfg)
+    mt = MediaTrimmer (analystCfg, outputCfg)
 
     mt.Scan (pCmdName, pMediaSrcRoot, pMediaTargetRoot, pMediaExistsRoot)
 

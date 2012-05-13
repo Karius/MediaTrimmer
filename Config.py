@@ -8,29 +8,47 @@ import os
 
 class MTCfgData (object):
     
-    class Rule (object):
+    #######################################################
+    class Analyst (object):
+        class Rule (object):
+            def __init__ (self):
+                self.typeid     = ""
+                self.extList    = []
+                self.partner    = ""
+                self.flags      = 0
+                self.methodList = []
+
+
         def __init__ (self):
-            self.typeid     = ""
-            self.extList    = []
-            self.partner    = ""
-            self.flags      = 0
-            self.methodList = []
-        
+            self.id       = ""
+            self.ruleList = []
+
+        def AddRule (self, rule):
+            self.ruleList.append (rule)
+
+    #######################################################
+    class Output (object):
+        def __init__ (self):
+            self.id              = ""
+            self.cmd_head        = ""
+            self.cmd_body_single = ""
+            self.cmd_tail        = ""
+
+    #######################################################
     def __init__ (self):
-        self.id              = ""
-        self.cmd_head        = ""
-        self.cmd_body_single = ""
-        self.cmd_tail        = ""
+        self.analystList = {}
+        self.outputList  = {}
 
-        self.ruleList        = []
+    def AddAnalyst (self, analyst):
+        self.analystList[analyst.id] = analyst
 
-    def AddRule (self, rule):
-        self.ruleList.append (rule)
+    def AddOutput (self, output):
+        self.outputList[output.id] = output
 
 
 class MTConfig (object):
     def __init__ (self):
-        self.__CfgList = {}
+        self.__CfgData = MTCfgData ()
 
     def TranslateFlagValue (self, typeid, flagStr):
         if typeid.lower () == "date":
@@ -38,8 +56,6 @@ class MTConfig (object):
                 return MediaProcessRule.PF_FOLLOWMAIN
             elif flagStr == "PF_GETINFO":
                 return MediaProcessRule.PF_GETINFO
-
-
         return 0
 
     def TranslateMethodValue (self, typeid, methodStr):
@@ -50,7 +66,6 @@ class MTConfig (object):
                 return MediaDateProcessRule.FILENAME
             elif methodStr == "FILEDATE":
                 return MediaDateProcessRule.FILEDATE
-
         return None
 
     def ReadConfig (self, cfgFile):
@@ -65,27 +80,25 @@ class MTConfig (object):
         if cfgroot is None:
             return False
 
-        cfgNodeList = xParser.getSpeicNodeList (cfgroot, "name")
+        # 解析 <analyst></analyst> 的设置
+        analystNodeList = xParser.getSpeicNodeList (cfgroot, "analyst")
+        for analystNode in analystNodeList:
 
-        for cfgNode in cfgNodeList:
-            cfgID = xParser.getNodeAttribValue (cfgNode, "id")
-            if cfgID is None:
+            analystID = xParser.getNodeAttribValue (analystNode, "id")
+            if analystID is None:
                 continue
 
-            cfg = MTCfgData ()
-            cfg.id = cfgID
-            cfg.cmd_head = xParser.GetXmlNodeValue (cfgNode, "output/head", "")
-            cfg.cmd_body_single = xParser.GetXmlNodeValue (cfgNode, "output/bodysingle", "")
-            cfg.cmd_tail = xParser.GetXmlNodeValue (cfgNode, "output/tail", "")
+            analyst    = MTCfgData.Analyst ()
+            analyst.id = analystID
 
             # 获取 rule 列表
-            ruleNodeList = xParser.getSpeicNodeList (cfgNode, "rule")
+            ruleNodeList = xParser.getSpeicNodeList (analystNode, "rule")
             for ruleNode in ruleNodeList:
                 typeid = xParser.getNodeAttribValue (ruleNode, "method")
                 if typeid is None or len (typeid) <= 0:
                     continue
 
-                rule = MTCfgData.Rule ()
+                rule = MTCfgData.Analyst.Rule ()
                 rule.typeid  = typeid
                 
                 rule.extList = xParser.GetXmlNodeValueList (ruleNode, "ext", None)
@@ -104,13 +117,34 @@ class MTConfig (object):
                 for m in methodList:
                     rule.methodList.append (self.TranslateMethodValue (typeid, m))
 
-                cfg.AddRule (rule)
+                analyst.AddRule (rule)
 
-            self.__CfgList[cfgID] = cfg
+            self.__CfgData.AddAnalyst (analyst)
+
+
+        # 解析 <output></output> 的设置
+        outputNodeList = xParser.getSpeicNodeList (cfgroot, "output")
+        for outputNode in outputNodeList:
+            outputID = xParser.getNodeAttribValue (outputNode, "id")
+            if outputID is None:
+                continue
+
+            output    = MTCfgData.Output ()
+            output.id = outputID
+            output.cmd_head        = xParser.GetXmlNodeValue (outputNode, "head", "")
+            output.cmd_body_single = xParser.GetXmlNodeValue (outputNode, "bodysingle", "")
+            output.cmd_tail        = xParser.GetXmlNodeValue (outputNode, "tail", "")
+
+            self.__CfgData.AddOutput (output)
         
-        return self.__CfgList
+        return self.__CfgData
 
-    def GetConfig (self, cfgID):
-        if cfgID in self.__CfgList.keys ():
-            return self.__CfgList[cfgID]
+    def GetAnalystConfig (self, cfgID):
+        if cfgID in self.__CfgData.analystList.keys ():
+            return self.__CfgData.analystList[cfgID]
+        return None
+
+    def GetOutputConfig (self, cfgID):
+        if cfgID in self.__CfgData.outputList.keys ():
+            return self.__CfgData.outputList[cfgID]
         return None

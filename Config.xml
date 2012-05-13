@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-  <name id="DateAnalyst">
+  <analyst id="DateAnalyst">
     <rule method="date">
       <ext>jpg</ext>
       <partner></partner>
@@ -30,10 +30,12 @@
       <ext>m4v;mp4;3gp</ext>
       <method>EXIF;FILENAME;FILEDATE</method>
     </rule>
-    <output>
-      <head>@echo off\n</head>
-      <bodysingle>call :moveto "?SRC_MEDIA_ROOT_DIR?" "?TARGET_ROOT_DIR?" "?EXISTS_ROOT_DIR?"\n</bodysingle>
-      <tail><![CDATA[
+  </analyst>
+
+  <output id="moveto">
+    <head>@echo off\n</head>
+    <bodysingle>call :moveto "?SRC_MEDIA_ROOT_DIR?" "?TARGET_ROOT_DIR?" "?EXISTS_ROOT_DIR?"\n</bodysingle>
+    <tail><![CDATA[
 goto :EOF
 
 rem ##########################################################
@@ -72,7 +74,6 @@ if exist "%~2\%~n1%~x1" (
 )
 goto :EOF
 ]]>
-      </tail>
-    </output>
-  </name>
+    </tail>
+  </output>
 </config>
