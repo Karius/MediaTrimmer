@@ -11,8 +11,18 @@ import os
 
 
 class MediaTrimmer (object):
-    def __init__ (self, cfg, mediaRuleList):
+    def __init__ (self, cfg):
         self.__Cfg                 = cfg
+
+        mediaRuleList = []
+        for rule in cfg.ruleList:
+            if rule.typeid == "date":
+                ruleObj = MediaDateProcessRule (rule.extList, rule.partner, rule.flags, rule.methodList)
+            else:
+                continue
+
+            mediaRuleList.append (ruleObj)
+
         self.__MediaRuleManager    = MediaRuleManager (mediaRuleList)
         self.__FileLocationManager = FileLocationManager ()
 
@@ -56,19 +66,33 @@ if __name__ == "__main__":
     reload (sys)
     sys.setdefaultencoding('utf-8')
 
+
+    pCfgID        = "DateAnalyst"
+    pCmdName      = "1a.cmd"
+    pMediaSrcRoot = "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM"
+    pMediaTargetRoot = pMediaSrcRoot
+    pMediaExistsRoot = pMediaSrcRoot
+
     mtc = MTConfig ()
     mtc.ReadConfig ("Config.xml")
 
-    cfg = mtc.GetConfig ("DateAnalyst")
+    cfg = mtc.GetConfig (pCfgID)
 
-    mt = MediaTrimmer (cfg, [MediaDateProcessRule (["jpg", "raw", "crw", "cr2", "rw2", "nef", "nrw", "arw", "srf", "sr2", "pef", "ptx", "srw"]), \
-                                 MediaDateProcessRule (["avi", "mov"], "thm", MediaDateProcessRule.PF_FOLLOWMAIN or MediaDateProcessRule.PF_GETINFO), \
-                                 MediaDateProcessRule (["m2ts"], "modd", MediaDateProcessRule.PF_FOLLOWMAIN), \
-                                 MediaDateProcessRule (["mts"]), \
-                                 MediaDateProcessRule (["m4v", "mp4"]), \
-                                 MediaDateProcessRule (["3gp"])
-                             ])
+    if cfg is None:
+        exit (1)
 
+    # mt = MediaTrimmer (cfg, [MediaDateProcessRule (["jpg", "raw", "crw", "cr2", "rw2", "nef", "nrw", "arw", "srf", "sr2", "pef", "ptx", "srw"]), \
+    #                              MediaDateProcessRule (["avi", "mov"], "thm", MediaDateProcessRule.PF_FOLLOWMAIN | MediaDateProcessRule.PF_GETINFO), \
+    #                              MediaDateProcessRule (["m2ts"], "modd", MediaDateProcessRule.PF_FOLLOWMAIN), \
+    #                              MediaDateProcessRule (["mts"]), \
+    #                              MediaDateProcessRule (["m4v", "mp4"]), \
+    #                              MediaDateProcessRule (["3gp"])
+    #                          ])
+
+
+
+    mt = MediaTrimmer (cfg)
             
     #mt.Scan ("d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM", "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM", "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM\_Repeat")
-    mt.Scan ("1a.cmd", "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM")
+
+    mt.Scan (pCmdName, pMediaSrcRoot, pMediaTargetRoot, pMediaExistsRoot)

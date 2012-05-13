@@ -231,6 +231,22 @@ class XMLParser:
             return defVal
         return Str2Bool (retVal, defVal)
 
+    # parentNode : 父节点
+    # nodeName   : 要取的节点名称，支持树节点
+    # defVal     : 默认值，list 类型，当索取属性不存在时返回的值
+    # sep        : 字符串间隔符号，默认为 ";"
+    def GetXmlNodeValueList (self, parentNode, nodeName, defVal, sep = None):
+        # 最后一个参数为 True 表明：如果节点不存在或节点内容为 "" 这样的空字符串，将返回 None
+        retVal = self.GetXmlNodeValue (parentNode, nodeName, None, True)
+        if retVal is None:
+            return defVal
+        try:
+            if sep is None:
+                sep = ";"
+            return retVal.split (sep)
+        except:  # ValueError
+            return defVal
+
 
 class XMLCreater:
     def __init__ (self):

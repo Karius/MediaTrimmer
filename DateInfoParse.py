@@ -55,7 +55,7 @@ class DateTimeStringParser (object):
 #####################################################
 # 存放需要被检查解析的媒体的类型及其处理方法的类
 # 
-class MediaDateProcessRule  (MediaProcessRule):
+class MediaDateProcessRule (MediaProcessRule):
     EXIF     = 1
     FILENAME = 2
     FILEDATE = 3
@@ -74,7 +74,7 @@ class MediaDateProcessRule  (MediaProcessRule):
         if self.IsRuleFile (fullpath):
 
             # 如果有伴侣文件，按指定方法从伴侣文件中获取日期信息
-            if self.HasPartner () and (self.GetFlags () and self.PF_GETINFO):
+            if self.HasPartner () and (self.GetFlags () & self.PF_GETINFO):
                 # 获取伴侣文件名
                 pfile = self.GetPartnerFilename (fullpath)
                 dt = self.GetMediaDate (pfile)
@@ -90,7 +90,7 @@ class MediaDateProcessRule  (MediaProcessRule):
         elif self.IsPartnerFile (fullpath):
 
             # 如果指定从伴侣文件中获取日期信息则按指定方法从伴侣文件中获取日期信息
-            if self.GetFlags () and self.PF_GETINFO:
+            if self.GetFlags () & self.PF_GETINFO:
                 dt = self.GetMediaDate (fullpath)
 
             # 否则从主文件中获取日期信息
