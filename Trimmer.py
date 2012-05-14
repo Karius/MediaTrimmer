@@ -34,7 +34,7 @@ class MediaTrimmer (object):
         if existsDir is None:
             existsDir = os.path.join (targetDir, "_Repeat")
 
-        fileList = ScanDir (rootDir, level)
+        fileList = ScanDir (rootDir, True, level)
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
         for mediaName in fileList:

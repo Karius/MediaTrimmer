@@ -7,7 +7,7 @@ import os
 # gather
 # rootDir: 指定开始扫描的顶层目录
 # level: 扫描的层数。0: 无限制，扫描所有层数
-def ScanDir (rootDir, level = None):
+def ScanDir (rootDir, filesort = False, level = None):
 
     # 扫描一个目录列表内的所有文件与目录信息
     def ScanSingle (rootDirList):
@@ -49,5 +49,8 @@ def ScanDir (rootDir, level = None):
         # 如果达到指定扫描层数则退出循环
         elif currLevel >= level:
             break
+
+    if filesort:
+        return sorted (fileList, key=str.lower)
 
     return fileList
