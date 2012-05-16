@@ -47,26 +47,42 @@ class MTCfgData (object):
 
 
 class MTConfig (object):
+
+    # 所有 MediaProcessRule 的子类都需将其类名称放在此列表中
+    MEDIA_RULE_CLASS_LIST = [MediaDateProcessRule]
+
     def __init__ (self):
         self.__CfgData = MTCfgData ()
 
     def TranslateFlagValue (self, typeid, flagStr):
-        if typeid.lower () == "date":
-            if flagStr == "PF_FOLLOWMAIN":
-                return MediaProcessRule.PF_FOLLOWMAIN
-            elif flagStr == "PF_GETINFO":
-                return MediaProcessRule.PF_GETINFO
+        for c in self.MEDIA_RULE_CLASS_LIST:
+            if c.RULE_ID == typeid:
+                return c.TranslateFlagValue (flagStr)
+
         return 0
 
+        # if typeid.lower () == "date":
+        #     if flagStr == "PF_FOLLOWMAIN":
+        #         return MediaProcessRule.PF_FOLLOWMAIN
+        #     elif flagStr == "PF_GETINFO":
+        #         return MediaProcessRule.PF_GETINFO
+        # return 0
+
     def TranslateMethodValue (self, typeid, methodStr):
-        if typeid.lower () == "date":
-            if methodStr == "EXIF":
-                return MediaDateProcessRule.EXIF
-            elif methodStr == "FILENAME":
-                return MediaDateProcessRule.FILENAME
-            elif methodStr == "FILEDATE":
-                return MediaDateProcessRule.FILEDATE
+        for c in self.MEDIA_RULE_CLASS_LIST:
+            if c.RULE_ID == typeid:
+                return c.TranslateMethodValue (methodStr)
+
         return None
+
+        # if typeid.lower () == "date":
+        #     if methodStr == "EXIF":
+        #         return MediaDateProcessRule.EXIF
+        #     elif methodStr == "FILENAME":
+        #         return MediaDateProcessRule.FILENAME
+        #     elif methodStr == "FILEDATE":
+        #         return MediaDateProcessRule.FILEDATE
+        # return None
 
     def ReadConfig (self, cfgFile):
         if not os.path.exists (cfgFile):
@@ -117,6 +133,7 @@ class MTConfig (object):
                 for m in methodList:
                     rule.methodList.append (self.TranslateMethodValue (typeid, m))
 
+                #print typeid, rule.flags, rule.methodList #DEBUG
                 analyst.AddRule (rule)
 
             self.__CfgData.AddAnalyst (analyst)

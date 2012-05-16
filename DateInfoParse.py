@@ -56,13 +56,34 @@ class DateTimeStringParser (object):
 # 存放需要被检查解析的媒体的类型及其处理方法的类
 # 
 class MediaDateProcessRule (MediaProcessRule):
+
+    RULE_ID  = "DATE"  # 本规则类的 ID
+
+    # Flag
+    PF_FOLLOWMAIN = 1      # 跟随主文件进行移动
+    PF_GETINFO    = 2      # 从伴侣文件中获取日期
+
+    # Method
     EXIF     = 1
     FILENAME = 2
     FILEDATE = 3
 
 
-    def __init__ (self, extList, partnerExt = None, partnerFlag = MediaProcessRule.PF_FOLLOWMAIN, methodList = [EXIF, FILENAME, FILEDATE]):
+    STR_FLAG_DICT = { \
+        "PF_GETINFO" : PF_GETINFO, \
+        "PF_FOLLOWMAIN" : PF_FOLLOWMAIN \
+        }
+
+    STR_METHOD_DICT = { \
+        "EXIF" : EXIF, \
+        "FILENAME" : FILENAME, \
+        "FILEDATE" : FILEDATE \
+        }
+
+
+    def __init__ (self, extList, partnerExt = None, partnerFlag = PF_FOLLOWMAIN, methodList = [EXIF, FILENAME, FILEDATE]):
         MediaProcessRule.__init__ (self, extList, partnerExt, partnerFlag, methodList)
+
 
 
     # 对参数中指定的全路径文件名进行分析处理
@@ -178,10 +199,10 @@ if __name__ == "__main__":
     #     print (v.IsRuleFile ("test.cr2"))
     #     print (v.IsPartnerFile ("test.thm"))
 
-    print (tl[0].DoProcess ("1.jpg"))
-    print (tl[0].DoProcess ("2.jpg"))
+    # print (tl[0].DoProcess ("1.jpg"))
+    # print (tl[0].DoProcess ("2.jpg"))
 
-    print (tl[2].DoProcess ("20120402183751.m2ts"), tl[2].DoProcess ("20120402183751.modd"))
+    # print (tl[2].DoProcess ("20120402183751.m2ts"), tl[2].DoProcess ("20120402183751.modd"))
 
     #print (tl[1].DoProcess ("c:\\w\\3.avi"))
 
@@ -220,3 +241,7 @@ if __name__ == "__main__":
 
 
 
+    al = [MediaDateProcessRule,]
+    print MediaDateProcessRule, al[0]
+    print (al[0].RULE_ID)
+    print al[0].TranslateFlagValue ("PF_GETINFO")

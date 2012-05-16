@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
   <analyst id="DateAnalyst">
-    <rule method="date">
+    <rule method="DATE">
       <ext>jpg</ext>
       <partner></partner>
       <method>EXIF;FILENAME;FILEDATE</method>
     </rule>
-    <rule method="date">
+    <rule method="DATE">
       <ext>raw;crw;cr2;rw2;nef;nrw;arw;srf;sr2;pef;ptx;srw</ext>
       <method>FILENAME;FILEDATE</method>
     </rule>
-    <rule method="date">
+    <rule method="DATE">
       <ext>avi;mov</ext>
       <partner>thm</partner>
       <flags>PF_FOLLOWMAIN;PF_GETINFO</flags>
       <method>EXIF;FILENAME;FILEDATE</method>
     </rule>
-    <rule method="date">
+    <rule method="DATE">
       <ext>m2ts</ext>
       <partner>modd</partner>
       <flags>PF_FOLLOWMAIN</flags>
       <method>EXIF;FILENAME;FILEDATE</method>
     </rule>
-    <rule method="date">
+    <rule method="DATE">
       <ext>mts</ext>
       <method>EXIF;FILENAME;FILEDATE</method>
     </rule>
-    <rule method="date">
+    <rule method="DATE">
       <ext>m4v;mp4;3gp</ext>
       <method>EXIF;FILENAME;FILEDATE</method>
     </rule>

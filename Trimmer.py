@@ -17,11 +17,11 @@ class MediaTrimmer (object):
 
         mediaRuleList = []
         for rule in self.__analystCfg.ruleList:
-            if rule.typeid == "date":
-                ruleObj = MediaDateProcessRule (rule.extList, rule.partner, rule.flags, rule.methodList)
-            else:
-                continue
-
+            # 遍历当前所有的媒体处理规则派生类（在 MTConfig.MEDIA_RULE_CLASS_LIST 中定义)
+            for v in MTConfig.MEDIA_RULE_CLASS_LIST:
+                if v.RULE_ID == rule.typeid:  # 如果其 ID 符合设置中的 ID 则创建一个其类对象
+                    ruleObj = v (rule.extList, rule.partner, rule.flags, rule.methodList)
+                
             mediaRuleList.append (ruleObj)
 
         self.__MediaRuleManager    = MediaRuleManager (mediaRuleList)
@@ -49,7 +49,6 @@ class MediaTrimmer (object):
             cellTargetDir = os.path.join (targetDir, cell.TargetPath ())
             cellExistsDir = os.path.join (existsDir, cell.TargetPath ())
             for mediaName in cell.FileList ():
-                #cmdBody = cmdBody + 'call :moveto "%s" "%s" "%s"\n' % (mediaName, os.path.join (targetDir, cell.TargetPath ()), os.path.join (existsDir, cell.TargetPath ()))
                 line = self.__outputCfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
                 cmdBody = cmdBody + line
 
