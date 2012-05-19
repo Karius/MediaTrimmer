@@ -1,6 +1,6 @@
 pyinst=d:\Apps\pyinstaller\pyinstaller.py
 
-dist\Trimmer.exe: *.py
+dist/Trimmer.exe: *.py
 	python $(pyinst) --onefile Trimmer.py
 
 

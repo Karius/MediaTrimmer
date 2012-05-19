@@ -4,7 +4,7 @@
 
 from FileLocation import FileLocationManager
 from MediaRule import MediaRuleManager
-from DateInfoParse import MediaDateProcessRule
+from MediaDateRule import MediaDateProcessRule
 from Tools import ScanDir
 from Config import MTCfgData, MTConfig
 import os

@@ -3,7 +3,7 @@
 
 from XMLUtility import XMLParser
 from MediaRule import MediaProcessRule
-from DateInfoParse import MediaDateProcessRule
+from MediaDateRule import MediaDateProcessRule
 import os
 
 class MTCfgData (object):
