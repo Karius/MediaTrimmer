@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+import sys
 import os
 
 # gather
@@ -54,3 +54,19 @@ def ScanDir (rootDir, filesort = False, level = None):
         return sorted (fileList, key=str.lower)
 
     return fileList
+
+
+def path2Unicode (name):
+    # 获取当前文件系统命名的编码规则
+    # 如果不这么做在处理含有中文的路径时则会有 UnicodeError 的异常抛出
+
+    # 首先获取当前的文件系统编码
+    filesystem_encoding = sys.getfilesystemencoding()
+
+    # 然后使用该编码进行重新编码，将其编码为 unicode
+    return unicode (name, filesystem_encoding)
+
+    # 经过上面两行的处理，则可以正常使用含有中文的路径了
+    # 别忘了在 python 的源文件开头加上 # -*- coding: utf-8 -*-
+    # 该种处理方法来源 http://www.zeuux.org/group/python/bbs/content/18305/
+

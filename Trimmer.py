@@ -5,7 +5,7 @@
 from FileLocation import FileLocationManager
 from MediaRule import MediaRuleManager
 from MediaDateRule import MediaDateProcessRule
-from Tools import ScanDir
+from Tools import ScanDir, path2Unicode
 from Config import MTCfgData, MTConfig
 import os
 
@@ -29,6 +29,15 @@ class MediaTrimmer (object):
 
 
     def Scan (self, outputCmdName, rootDir, targetDir = None, existsDir = None, level = None):
+
+        # 扫描root目录，查找 name 开头的目录，如果有则返回该目录，否则返回defName参数指定的字符串
+        def getSimilarDir (root, name, defName):
+            for n in os.listdir (root):
+                if os.path.isdir(os.path.join (root, n)):
+                    if n.lower().find (name.lower()) == 0:
+                        return n
+            return defName
+
         if targetDir is None:
             targetDir = rootDir
         if existsDir is None:
@@ -36,20 +45,34 @@ class MediaTrimmer (object):
 
         fileList = ScanDir (rootDir, True, level)
 
+        # 获取当前文件系统命名的编码规则
+        # 如果不这么做在处理含有中文的路径时则会有 UnicodeError 的异常抛出
+        # 具体方法可以看主函数开头处的注释说明
+        filesystem_encoding = sys.getfilesystemencoding()
+
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
         for mediaName in fileList:
             r = self.__MediaRuleManager.DoAction (mediaName)
             if r:
-                self.__FileLocationManager.AddFile (mediaName, r.data)
+                self.__FileLocationManager.AddFile (unicode(mediaName, filesystem_encoding), r.data)
+
 
         # 处理收集完成的所有媒体文件
         # 遍历每个目标目录相同的 Cell 列表
         cmdBody = ""
         for cell in self.__FileLocationManager.GetCellList ():
-            cellTargetDir = os.path.join (targetDir, cell.TargetPath ())
-            cellExistsDir = os.path.join (existsDir, cell.TargetPath ())
+            # 这是一个参数，指定可以使用已存在的目标目录，比如自动生成的目标目录为:1989-06-04 但如果有个已存在的目录1989-06-04_XXX，则使用这个目录作为目标目录，如果有多个相似的则使用第一个
+            isUseExistsTargetPath = True 
+            if isUseExistsTargetPath:
+                defCellTargetPath = getSimilarDir (targetDir, cell.TargetPath (), cell.TargetPath ())
+            else:
+                defCellTargetPath = cell.TargetPath ()
+
+            cellTargetDir = unicode(os.path.join (targetDir, defCellTargetPath), filesystem_encoding)
+            cellExistsDir = unicode(os.path.join (existsDir, defCellTargetPath), filesystem_encoding)
+
             for mediaName in cell.FileList ():
-                line = self.__outputCfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
+                line = self.__outputCfg.cmd_body_single.replace (u"?SRC_MEDIA_ROOT_DIR?", mediaName).replace (u"?TARGET_ROOT_DIR?", cellTargetDir).replace (u"?EXISTS_ROOT_DIR?", cellExistsDir)
                 cmdBody = cmdBody + line
 
         cmdAll = (self.__outputCfg.cmd_head + cmdBody + self.__outputCfg.cmd_tail).replace ("\\n", "\n")
@@ -67,6 +90,15 @@ def Main (argv):
     import sys
     reload (sys)
     sys.setdefaultencoding('utf-8')
+
+    # 除了上面的设置之外，如果需要处理中文路径，也需要对含有中文的文件名或目录名做如下处理
+    # 首先获取当前的文件系统编码
+    # filesystem_encoding = sys.getfilesystemencoding()
+    # 然后使用该编码进行重新编码，将其编码为 unicode
+    # newfilename = unicode (filename, filesystem_encoding)
+    # 经过上面两行的处理，则可以正常使用含有中文的路径了
+    # 别忘了在 python 的源文件开头加上 # -*- coding: utf-8 -*-
+    # 该种处理方法来源 http://www.zeuux.org/group/python/bbs/content/18305/
 
 
     # pCfgID        = "DateAnalyst"
