@@ -51,7 +51,11 @@ def ScanDir (rootDir, filesort = False, level = None):
             break
 
     if filesort:
-        return sorted (fileList, key=str.lower)
+        # 根据传入rootDir是否为unicode类型来具体处理
+        if isinstance(rootDir,unicode):
+            return sorted (fileList, key=unicode.lower)
+        else:
+            return sorted (fileList, key=str.lower)
 
     return fileList
 
