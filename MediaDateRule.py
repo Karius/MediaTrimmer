@@ -5,7 +5,7 @@
 from BaseType import Result
 from MediaRule import MediaProcessRule
 import datetime
-import exif
+import exif_simple
 import os
 
 
@@ -155,7 +155,7 @@ class MediaDateProcessRule (MediaProcessRule):
     # 内部使用函数，根据指定分析方法去分析指定媒体文件日期信息
     def AnalysisMedia (self, fullpath, method = EXIF):
         if method == self.EXIF:
-            tags = exif.parse (fullpath, 0, 0);
+            tags = exif_simple.parse (fullpath, 0, 0);
 
             ExifDateParser = DateTimeStringParser ()
 
