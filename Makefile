@@ -6,5 +6,5 @@ dist/Trimmer.exe: *.py
 
 .PHONY : clean
 clean:
-	-del *.pyc *.log
+	-del *.pyc *.log *.spec
 	-rd /s /q build

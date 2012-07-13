@@ -5,7 +5,7 @@
 from BaseType import Result
 from MediaRule import MediaProcessRule
 import datetime
-import exif_simple
+import EXIF
 import os
 
 
@@ -155,14 +155,28 @@ class MediaDateProcessRule (MediaProcessRule):
     # 内部使用函数，根据指定分析方法去分析指定媒体文件日期信息
     def AnalysisMedia (self, fullpath, method = EXIF):
         if method == self.EXIF:
-            tags = exif_simple.parse (fullpath, 0, 0);
-
             ExifDateParser = DateTimeStringParser ()
 
-            if tags.has_key ("DateTimeOriginal"):
-                return ExifDateParser.Parse (tags["DateTimeOriginal"])
-            elif tags.has_key ("DateTime"):
-                return ExifDateParser.Parse (tags["DateTime"])
+            # 之前使用的exif 解析器是随便找的，功能不太完整，IFD识别不了，现在换成EXIF.py
+            # tags = exif_simple.parse (fullpath, 0, 0);
+
+            # if tags.has_key ("DateTimeOriginal"):
+            #     return ExifDateParser.Parse (tags["DateTimeOriginal"])
+            # elif tags.has_key ("DateTime"):
+            #     return ExifDateParser.Parse (tags["DateTime"])
+
+            try:
+                f = file (fullpath, "rb")
+                try:
+                    tags = EXIF.process_file (f)
+                finally:
+                    f.close ()
+
+                for k in ["EXIF DateTimeOriginal", "EXIF DateTimeDigitized", "EXIF DateTime"]:
+                    if tags.has_key (k):
+                        return ExifDateParser.Parse (str(tags[k]))
+            except IOError:
+                pass
 
             return None
 
