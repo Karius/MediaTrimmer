@@ -190,8 +190,15 @@ class MediaDateProcessRule (MediaProcessRule):
             return dt
 
         elif method == self.FILEDATE:
-            FileDateParser = DateTimeStringParser (r'^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})')
-            return FileDateParser.Parse (datetime.datetime.fromtimestamp (os.path.getmtime (fullpath)).strftime("%Y-%m-%d %H:%M:%S"))
+            try:
+                FileDateParser = DateTimeStringParser (r'^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})')
+                return FileDateParser.Parse (datetime.datetime.fromtimestamp (os.path.getmtime (fullpath)).strftime("%Y-%m-%d %H:%M:%S"))
+            except IOError:
+                pass
+            except WindowsError: # 当 fullpath 中的文件不存在时，os.path.getmtime 会抛出 WindowsError 错误。比如 5D3 的 *.MOV 文件就不像 7D 一样有 *.THM 伴侣文件
+                pass
+                
+            return None
 
         else:
             return None
