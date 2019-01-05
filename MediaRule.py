@@ -29,10 +29,10 @@ class MediaProcessRule  (object):
         self.__StrMethodDict = {}
 
         for v in extList:
-            if v[0] <> '.':
+            if v[0] != '.':
                 v = "." + v
             self.__ExtList.append (os.path.normcase (v))
-        if isinstance (partnerExt, basestring) and partnerExt[0] <> '.':
+        if isinstance (partnerExt, str) and partnerExt[0] != '.':
             partnerExt = "." + partnerExt
             self.__PartnerExt = os.path.normcase (partnerExt)
         else:
@@ -49,7 +49,7 @@ class MediaProcessRule  (object):
 
     # 伴侣文件列表是否有伴侣文件
     def HasPartner (self):
-        return self.__PartnerExt <> None
+        return self.__PartnerExt != None
 
     # 返回 Flag
     def GetFlags (self):

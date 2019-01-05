@@ -263,6 +263,6 @@ if __name__ == "__main__":
 
 
     al = [MediaDateProcessRule,]
-    print MediaDateProcessRule, al[0]
+    print (MediaDateProcessRule, al[0])
     print (al[0].RULE_ID)
-    print al[0].TranslateFlagValue ("PF_GETINFO")
+    print (al[0].TranslateFlagValue ("PF_GETINFO"))

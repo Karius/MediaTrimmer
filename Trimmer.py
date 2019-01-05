@@ -45,16 +45,11 @@ class MediaTrimmer (object):
 
         fileList = ScanDir (rootDir, True, level)
 
-        # 获取当前文件系统命名的编码规则
-        # 如果不这么做在处理含有中文的路径时则会有 UnicodeError 的异常抛出
-        # 具体方法可以看主函数开头处的注释说明
-        filesystem_encoding = sys.getfilesystemencoding()
-
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
         for mediaName in fileList:
             r = self.__MediaRuleManager.DoAction (mediaName)
             if r:
-                self.__FileLocationManager.AddFile (unicode(mediaName, filesystem_encoding), r.data)
+                self.__FileLocationManager.AddFile (mediaName, r.data)
 
 
         # 处理收集完成的所有媒体文件
@@ -68,8 +63,8 @@ class MediaTrimmer (object):
             else:
                 defCellTargetPath = cell.TargetPath ()
 
-            cellTargetDir = unicode(os.path.join (targetDir, defCellTargetPath), filesystem_encoding)
-            cellExistsDir = unicode(os.path.join (existsDir, defCellTargetPath), filesystem_encoding)
+            cellTargetDir = os.path.join (targetDir, defCellTargetPath)
+            cellExistsDir = os.path.join (existsDir, defCellTargetPath)
 
             for mediaName in cell.FileList ():
                 line = self.__outputCfg.cmd_body_single.replace (u"?SRC_MEDIA_ROOT_DIR?", mediaName).replace (u"?TARGET_ROOT_DIR?", cellTargetDir).replace (u"?EXISTS_ROOT_DIR?", cellExistsDir)
@@ -87,9 +82,10 @@ def Main (argv):
     # 设置系统默认编码为 utf-8。如果不设置在 decode ('utf-8').encode ('GBK') 时将会出现 UnicodeValueError 之类的异常
     # http://blog.csdn.net/kiki113/article/details/4062063
     # 看第三段
-    import sys
-    reload (sys)
-    sys.setdefaultencoding('utf-8')
+    #import sys
+    #from imp import reload
+    #reload (sys)
+    #sys.setdefaultencoding('utf-8')
 
     # 除了上面的设置之外，如果需要处理中文路径，也需要对含有中文的文件名或目录名做如下处理
     # 首先获取当前的文件系统编码

@@ -50,7 +50,7 @@ class BaseDataList(object):
         return self.List ().__iter__ ()
 
     def __next__ (self):
-        return self.List ().__next__ ()
+        return next (self.List ()) 
 
     # 在数据列表末尾增加一个元素
     def Append (self, item):
@@ -127,7 +127,7 @@ class BaseDataDict(object):
         return self.Dict ().__iter__ ()
 
     def __next__ (self):
-        return self.Dict ().__next__ ()
+        return next (self.Dict ())
 
     # 在数据词典增加一个元素
     def Add (self, key, val):
@@ -140,11 +140,11 @@ class BaseDataDict(object):
 
     # 排序数据词典
     def Sort (self):
-        self.Dict ().sort ()
+        self.__DataDict = sorted (self.Dict ())
 
     # 反转词典内容
     def Reverse (self):
-        self.Dict ().reverse ()
+        self.__DataDict = reversed (self.Dict ())
 
     # 打乱词典顺序
     def Shuffle (self):
@@ -160,7 +160,7 @@ class Result:
     def __init__ (self, boolVal, attrList = None, attrVal = None):
         # 如果 boolVal 参数非 bool 类型，则抛出异常。否则将其值赋给类的私有成员
         if not isinstance (boolVal, bool):
-            raise TypeError, boolVal
+            raise TypeError ( boolVal)
         self.__BoolValue = boolVal
 
         # 如果 attrList 参数非词典类型，则将其置为空词典
@@ -223,7 +223,7 @@ class Result:
     def __getattr__ (self, key):
         tkey = self.__getAttrName (key)
         if tkey not in self.__dict__:
-            raise KeyError, tkey
+            raise KeyError (tkey)
         return self.__dict__[tkey]
 
     def __repr__ (self):
@@ -236,10 +236,10 @@ class Result:
     def __eq__ (self, other):
         if isinstance (other, bool):
             self.__BoolValue = other
-        elif isinstance (other, KXResult):
+        elif isinstance (other, Result):
             self.__BoolValue = other.__BoolValue
         else:
-            raise TypeError, other
+            raise TypeError (other)
 
     # 将本内类数据转为可打印的字符串形式
     def __str__ (self):

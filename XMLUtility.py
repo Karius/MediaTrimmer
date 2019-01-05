@@ -1,13 +1,13 @@
-# -*- coding: gbk -*-
+# -*- coding: utf-8 -*-
 
 from xml.dom.minidom import parse, parseString
 from xml.dom.minidom import getDOMImplementation
 
-# ¸ù¾İ sstr µÄÄÚÈİÀ´·µ»ØÆäÄÚÈİÊÇ True »¹ÊÇ False
-# sstr ¿ÉÒÔÊÇ int Êı×ÖÀàĞÍ»òÕßÊÇ×Ö·û´®ÀàĞÍ£¬ANSI ºÍ Unicode ×Ö·û´®¾ù¿É£¬²»Çø·Ö´óĞ¡Ğ´
-# ±ÈÈç sstr = "0" or sstr = 0 or sstr = "False" or sstr = "false" or sstr = "disable" or sstr = "disable" ±¾º¯Êı¾ù·µ»Ø False
-# sstr = "1" or sstr = 1 or sstr = "True" or sstr = "true" or sstr = "Enable" or sstr = "enable" ±¾º¯Êı¾ù·µ»Ø True
-# defV ÎªÄ¬ÈÏÖµ
+# æ ¹æ® sstr çš„å†…å®¹æ¥è¿”å›å…¶å†…å®¹æ˜¯ True è¿˜æ˜¯ False
+# sstr å¯ä»¥æ˜¯ int æ•°å­—ç±»å‹æˆ–è€…æ˜¯å­—ç¬¦ä¸²ç±»å‹ï¼ŒANSI å’Œ Unicode å­—ç¬¦ä¸²å‡å¯ï¼Œä¸åŒºåˆ†å¤§å°å†™
+# æ¯”å¦‚ sstr = "0" or sstr = 0 or sstr = "False" or sstr = "false" or sstr = "disable" or sstr = "disable" æœ¬å‡½æ•°å‡è¿”å› False
+# sstr = "1" or sstr = 1 or sstr = "True" or sstr = "true" or sstr = "Enable" or sstr = "enable" æœ¬å‡½æ•°å‡è¿”å› True
+# defV ä¸ºé»˜è®¤å€¼
 def Str2Bool (sstr, defV = None):
     if defV is None:
         defV = False
@@ -33,7 +33,7 @@ def Str2Bool (sstr, defV = None):
 
 
 class XMLParser:
-    # ½âÎö XML ÎÄ¼ş£¬²¢·µ»Ø XMLDOM
+    # è§£æ XML æ–‡ä»¶ï¼Œå¹¶è¿”å› XMLDOM
     def ParseFile (self, fname):
         xmlDom = None
         try:
@@ -42,7 +42,7 @@ class XMLParser:
             pass
         return xmlDom
 
-    # ½âÎö XML ×Ö·û´®£¬²¢·µ»Ø XMLDOM
+    # è§£æ XML å­—ç¬¦ä¸²ï¼Œå¹¶è¿”å› XMLDOM
     def ParseString (self, xmlStr):
         xmlDom = None
         try:
@@ -51,11 +51,11 @@ class XMLParser:
             pass
         return xmlDom
 
-    # È¡µÃÖ¸¶¨½ÚµãµÄÊôĞÔÁĞ±í
+    # å–å¾—æŒ‡å®šèŠ‚ç‚¹çš„å±æ€§åˆ—è¡¨
     def getNodeAttribList (self, node):
         return node.attributes
 
-    # È¡µÃÖ¸¶¨½ÚµãµÄÊôĞÔ
+    # å–å¾—æŒ‡å®šèŠ‚ç‚¹çš„å±æ€§
     def getNodeAttrib (self, node, attrName):
         attrList = self.getNodeAttribList (node)
         if attrList is None:
@@ -64,24 +64,24 @@ class XMLParser:
             return attrList[attrName]
         return None
 
-    # È¡µÃ½ÚµãÊôĞÔÃû
+    # å–å¾—èŠ‚ç‚¹å±æ€§å
     def getNodeAttribValue (self, node, attrName):
         attr = self.getNodeAttrib (node, attrName)
         if attr is None:
             return None
         return attr.value
 
-    # È¡µÃÊôĞÔÖµ
+    # å–å¾—å±æ€§å€¼
     def getAttribValue (self, attr):
         return attr.value
 
 
-    # ¿ìËÙÈ¡µÃÖ¸¶¨½ÚµãµÄÊôĞÔÁĞ±í
+    # å¿«é€Ÿå–å¾—æŒ‡å®šèŠ‚ç‚¹çš„å±æ€§åˆ—è¡¨
     def getSpeicNodeAttribList (self, parentNode, nodeName):
         node = self.getSpeicNode (parentNode, nodeName)
         return node.attributes
 
-    # ¿ìËÙÈ¡µÃÖ¸¶¨½ÚµãµÄÊôĞÔ
+    # å¿«é€Ÿå–å¾—æŒ‡å®šèŠ‚ç‚¹çš„å±æ€§
     def getSpeicNodeAttrib (self, parentNode, nodeName, attrName):
         attrList = self.getSpeicNodeAttribList (parentNode, nodeName)
         if attrList is None:
@@ -90,7 +90,7 @@ class XMLParser:
             return attrList[attrName]
         return None
 
-    # ¿ìËÙÈ¡µÃÖ¸¶¨½ÚµãµÄÊôĞÔÖµ
+    # å¿«é€Ÿå–å¾—æŒ‡å®šèŠ‚ç‚¹çš„å±æ€§å€¼
     def getSpeicNodeAttribValue (self, parentNode, nodeName, attrName):
         attrList = self.getSpeicNodeAttribList (parentNode, nodeName)
         if attrList is None:
@@ -100,7 +100,7 @@ class XMLParser:
         return None
 
 
-    # ¿ìËÙÈ¡µÃÖ¸¶¨½ÚµãÁĞ±í
+    # å¿«é€Ÿå–å¾—æŒ‡å®šèŠ‚ç‚¹åˆ—è¡¨
     def getSpeicNodeList (self, parentNode, nodeName):
         nodeTree = nodeName.split ("/")
         nodeName = nodeTree.pop ()
@@ -113,7 +113,7 @@ class XMLParser:
         return self.getChildNodeList (parentNode, nodeName)
 
 
-    # ¿ìËÙ»ñµÃÖ¸¶¨½Úµã
+    # å¿«é€Ÿè·å¾—æŒ‡å®šèŠ‚ç‚¹
     def getSpeicNode (self, parentNode, nodeName):
         nodeTree = nodeName.split ("/")
         for childNodeName in nodeTree:
@@ -124,7 +124,7 @@ class XMLParser:
                 return None
         return parentNode
 
-    # ¿ìËÙ»ñµÃÖ¸¶¨½ÚµãµÄÎÄ±¾ÄÚÈİ
+    # å¿«é€Ÿè·å¾—æŒ‡å®šèŠ‚ç‚¹çš„æ–‡æœ¬å†…å®¹
     def getSpeicNodeText (self, parentNode, nodeName, defaultText = None):
         chNode = self.getSpeicNode (parentNode, nodeName)
         if chNode is None:
@@ -134,9 +134,9 @@ class XMLParser:
         return self.getNodeText (chNode)
 
 
-    # »ñÈ¡Ö¸¶¨½ÚµãµÄÊ×¸ö×Ó½Úµã
+    # è·å–æŒ‡å®šèŠ‚ç‚¹çš„é¦–ä¸ªå­èŠ‚ç‚¹
     # def getFirstNode (self, xdom, name):
-    #     elementList = xdom.getElementsByTagName(name) # Èç¹û×Ó½ÚµãµÄ×Ó½ÚµãÓĞ·ûºÏÕâ¸ö name µÄ£¬Ôò getElementsByTagName »áÈ¡µÃ×Ó½ÚµãµÄ×Ó½Úµã£¬Õâ²»ÊÇÎÒÃÇËùÏ£ÍûµÄ
+    #     elementList = xdom.getElementsByTagName(name) # å¦‚æœå­èŠ‚ç‚¹çš„å­èŠ‚ç‚¹æœ‰ç¬¦åˆè¿™ä¸ª name çš„ï¼Œåˆ™ getElementsByTagName ä¼šå–å¾—å­èŠ‚ç‚¹çš„å­èŠ‚ç‚¹ï¼Œè¿™ä¸æ˜¯æˆ‘ä»¬æ‰€å¸Œæœ›çš„
     #     if len (elementList) > 0:
     #         return elementList[0]
     #     return None
@@ -146,7 +146,7 @@ class XMLParser:
                 return node
         return None
 
-    # È¡Ãû×ÖÏà·ûµÄÈ«²¿×Ó½Úµã£¨½ÚµãÁĞ±í£©
+    # å–åå­—ç›¸ç¬¦çš„å…¨éƒ¨å­èŠ‚ç‚¹ï¼ˆèŠ‚ç‚¹åˆ—è¡¨ï¼‰
     def getChildNodeList (self, xdom, name):
         nodeList = []
         for node in xdom.childNodes:
@@ -154,7 +154,7 @@ class XMLParser:
                 nodeList.append (node)
         return nodeList
 
-    # »ñÈ¡½ÚµãµÄÎÄ±¾ÄÚÈİ
+    # è·å–èŠ‚ç‚¹çš„æ–‡æœ¬å†…å®¹
     def getNodeText (self, node, defVal = None):
         if node is None:
             return defVal
@@ -163,27 +163,27 @@ class XMLParser:
                 return childNode.data
         return defVal
 
-    # Ò»Ğ©¸ü¸ß²ã´ÎµÄ¹¤¾ßº¯Êı
-    # parentNode : ¸¸½Úµã
-    # nodeName   : ÒªÈ¡µÄ½ÚµãÃû³Æ£¬Ö§³ÖÊ÷½Úµã
-    # attrName   : ÒªÈ¡µÄÊôĞÔÃû³Æ
-    # defVal     : Ä¬ÈÏÖµ£¬µ±Ë÷È¡ÊôĞÔ²»´æÔÚÊ±·µ»ØµÄÖµ
-    # nulStrRetDefVal : µ±È¡µÃÊôĞÔËäÈ»´æÔÚ£¬µ«ÆäÖµÄÚÈİÈ´ÊÇ "" ÕâÑùµÄ¿Õ×Ö·û´®Ê±ÊÇ·ñĞèÒª·µ»Ø defVal£¬Ä¬ÈÏÎªÊÇ
+    # ä¸€äº›æ›´é«˜å±‚æ¬¡çš„å·¥å…·å‡½æ•°
+    # parentNode : çˆ¶èŠ‚ç‚¹
+    # nodeName   : è¦å–çš„èŠ‚ç‚¹åç§°ï¼Œæ”¯æŒæ ‘èŠ‚ç‚¹
+    # attrName   : è¦å–çš„å±æ€§åç§°
+    # defVal     : é»˜è®¤å€¼ï¼Œå½“ç´¢å–å±æ€§ä¸å­˜åœ¨æ—¶è¿”å›çš„å€¼
+    # nulStrRetDefVal : å½“å–å¾—å±æ€§è™½ç„¶å­˜åœ¨ï¼Œä½†å…¶å€¼å†…å®¹å´æ˜¯ "" è¿™æ ·çš„ç©ºå­—ç¬¦ä¸²æ—¶æ˜¯å¦éœ€è¦è¿”å› defValï¼Œé»˜è®¤ä¸ºæ˜¯
     def GetXmlAttrValue (self, parentNode, nodeName, attrName, defVal, nulStrRetDefVal = None):
         x = XMLParser ()
         val = x.getSpeicNodeAttribValue (userNode, nodeName, attrName)
         if val is None:
-            return defval
+            return defVal
         if nulStrRetDefVal is None:
             nulStrRetDefVal = True
         if nulStrRetDefVal and val == '':
             return defVal
         return val
 
-    # parentNode : ¸¸½Úµã
-    # nodeName   : ÒªÈ¡µÄ½ÚµãÃû³Æ£¬Ö§³ÖÊ÷½Úµã
-    # defVal     : Ä¬ÈÏÖµ£¬µ±Ë÷È¡ÊôĞÔ²»´æÔÚÊ±·µ»ØµÄÖµ
-    # nulStrRetDefVal : µ±È¡µÃ½ÚµãËäÈ»´æÔÚ£¬µ«ÆäÖµÄÚÈİÈ´ÊÇ "" ÕâÑùµÄ¿Õ×Ö·û´®Ê±ÊÇ·ñĞèÒª·µ»Ø defVal£¬Ä¬ÈÏÎªÊÇ
+    # parentNode : çˆ¶èŠ‚ç‚¹
+    # nodeName   : è¦å–çš„èŠ‚ç‚¹åç§°ï¼Œæ”¯æŒæ ‘èŠ‚ç‚¹
+    # defVal     : é»˜è®¤å€¼ï¼Œå½“ç´¢å–å±æ€§ä¸å­˜åœ¨æ—¶è¿”å›çš„å€¼
+    # nulStrRetDefVal : å½“å–å¾—èŠ‚ç‚¹è™½ç„¶å­˜åœ¨ï¼Œä½†å…¶å€¼å†…å®¹å´æ˜¯ "" è¿™æ ·çš„ç©ºå­—ç¬¦ä¸²æ—¶æ˜¯å¦éœ€è¦è¿”å› defValï¼Œé»˜è®¤ä¸ºæ˜¯
     def GetXmlNodeValue (self, parentNode, nodeName, defVal, nulStrRetDefVal = None):
         x = XMLParser ()
         val = x.getSpeicNodeText (parentNode, nodeName)
@@ -195,11 +195,11 @@ class XMLParser:
             return defVal
         return val
 
-    # parentNode : ¸¸½Úµã
-    # nodeName   : ÒªÈ¡µÄ½ÚµãÃû³Æ£¬Ö§³ÖÊ÷½Úµã
-    # defVal     : Ä¬ÈÏÖµ£¬int ÀàĞÍ£¬µ±Ë÷È¡ÊôĞÔ²»´æÔÚÊ±·µ»ØµÄÖµ
+    # parentNode : çˆ¶èŠ‚ç‚¹
+    # nodeName   : è¦å–çš„èŠ‚ç‚¹åç§°ï¼Œæ”¯æŒæ ‘èŠ‚ç‚¹
+    # defVal     : é»˜è®¤å€¼ï¼Œint ç±»å‹ï¼Œå½“ç´¢å–å±æ€§ä¸å­˜åœ¨æ—¶è¿”å›çš„å€¼
     def GetXmlNodeValueInt (self, parentNode, nodeName, defVal):
-        # ×îºóÒ»¸ö²ÎÊıÎª True ±íÃ÷£ºÈç¹û½Úµã²»´æÔÚ»ò½ÚµãÄÚÈİÎª "" ÕâÑùµÄ¿Õ×Ö·û´®£¬½«·µ»Ø None
+        # æœ€åä¸€ä¸ªå‚æ•°ä¸º True è¡¨æ˜ï¼šå¦‚æœèŠ‚ç‚¹ä¸å­˜åœ¨æˆ–èŠ‚ç‚¹å†…å®¹ä¸º "" è¿™æ ·çš„ç©ºå­—ç¬¦ä¸²ï¼Œå°†è¿”å› None
         retVal = self.GetXmlNodeValue (parentNode, nodeName, None, True)
         if retVal is None:
             return defVal
@@ -208,11 +208,11 @@ class XMLParser:
         except:  # ValueError
             return defVal
 
-    # parentNode : ¸¸½Úµã
-    # nodeName   : ÒªÈ¡µÄ½ÚµãÃû³Æ£¬Ö§³ÖÊ÷½Úµã
-    # defVal     : Ä¬ÈÏÖµ£¬Float ÀàĞÍ£¬µ±Ë÷È¡ÊôĞÔ²»´æÔÚÊ±·µ»ØµÄÖµ
+    # parentNode : çˆ¶èŠ‚ç‚¹
+    # nodeName   : è¦å–çš„èŠ‚ç‚¹åç§°ï¼Œæ”¯æŒæ ‘èŠ‚ç‚¹
+    # defVal     : é»˜è®¤å€¼ï¼ŒFloat ç±»å‹ï¼Œå½“ç´¢å–å±æ€§ä¸å­˜åœ¨æ—¶è¿”å›çš„å€¼
     def GetXmlNodeValueFloat (self, parentNode, nodeName, defVal):
-        # ×îºóÒ»¸ö²ÎÊıÎª True ±íÃ÷£ºÈç¹û½Úµã²»´æÔÚ»ò½ÚµãÄÚÈİÎª "" ÕâÑùµÄ¿Õ×Ö·û´®£¬½«·µ»Ø None
+        # æœ€åä¸€ä¸ªå‚æ•°ä¸º True è¡¨æ˜ï¼šå¦‚æœèŠ‚ç‚¹ä¸å­˜åœ¨æˆ–èŠ‚ç‚¹å†…å®¹ä¸º "" è¿™æ ·çš„ç©ºå­—ç¬¦ä¸²ï¼Œå°†è¿”å› None
         retVal = self.GetXmlNodeValue (parentNode, nodeName, None, True)
         if retVal is None:
             return defVal
@@ -221,22 +221,22 @@ class XMLParser:
         except:  # ValueError
             return defVal
 
-    # parentNode : ¸¸½Úµã
-    # nodeName   : ÒªÈ¡µÄ½ÚµãÃû³Æ£¬Ö§³ÖÊ÷½Úµã
-    # defVal     : Ä¬ÈÏÖµ£¬Bool ÀàĞÍ£¬µ±Ë÷È¡ÊôĞÔ²»´æÔÚÊ±·µ»ØµÄÖµ
+    # parentNode : çˆ¶èŠ‚ç‚¹
+    # nodeName   : è¦å–çš„èŠ‚ç‚¹åç§°ï¼Œæ”¯æŒæ ‘èŠ‚ç‚¹
+    # defVal     : é»˜è®¤å€¼ï¼ŒBool ç±»å‹ï¼Œå½“ç´¢å–å±æ€§ä¸å­˜åœ¨æ—¶è¿”å›çš„å€¼
     def GetXmlNodeValueBool (self, parentNode, nodeName, defVal):
-        # ×îºóÒ»¸ö²ÎÊıÎª True ±íÃ÷£ºÈç¹û½Úµã²»´æÔÚ»ò½ÚµãÄÚÈİÎª "" ÕâÑùµÄ¿Õ×Ö·û´®£¬½«·µ»Ø None
+        # æœ€åä¸€ä¸ªå‚æ•°ä¸º True è¡¨æ˜ï¼šå¦‚æœèŠ‚ç‚¹ä¸å­˜åœ¨æˆ–èŠ‚ç‚¹å†…å®¹ä¸º "" è¿™æ ·çš„ç©ºå­—ç¬¦ä¸²ï¼Œå°†è¿”å› None
         retVal = self.GetXmlNodeValue (parentNode, nodeName, None, True)
         if retVal is None:
             return defVal
         return Str2Bool (retVal, defVal)
 
-    # parentNode : ¸¸½Úµã
-    # nodeName   : ÒªÈ¡µÄ½ÚµãÃû³Æ£¬Ö§³ÖÊ÷½Úµã
-    # defVal     : Ä¬ÈÏÖµ£¬list ÀàĞÍ£¬µ±Ë÷È¡ÊôĞÔ²»´æÔÚÊ±·µ»ØµÄÖµ
-    # sep        : ×Ö·û´®¼ä¸ô·ûºÅ£¬Ä¬ÈÏÎª ";"
+    # parentNode : çˆ¶èŠ‚ç‚¹
+    # nodeName   : è¦å–çš„èŠ‚ç‚¹åç§°ï¼Œæ”¯æŒæ ‘èŠ‚ç‚¹
+    # defVal     : é»˜è®¤å€¼ï¼Œlist ç±»å‹ï¼Œå½“ç´¢å–å±æ€§ä¸å­˜åœ¨æ—¶è¿”å›çš„å€¼
+    # sep        : å­—ç¬¦ä¸²é—´éš”ç¬¦å·ï¼Œé»˜è®¤ä¸º ";"
     def GetXmlNodeValueList (self, parentNode, nodeName, defVal, sep = None):
-        # ×îºóÒ»¸ö²ÎÊıÎª True ±íÃ÷£ºÈç¹û½Úµã²»´æÔÚ»ò½ÚµãÄÚÈİÎª "" ÕâÑùµÄ¿Õ×Ö·û´®£¬½«·µ»Ø None
+        # æœ€åä¸€ä¸ªå‚æ•°ä¸º True è¡¨æ˜ï¼šå¦‚æœèŠ‚ç‚¹ä¸å­˜åœ¨æˆ–èŠ‚ç‚¹å†…å®¹ä¸º "" è¿™æ ·çš„ç©ºå­—ç¬¦ä¸²ï¼Œå°†è¿”å› None
         retVal = self.GetXmlNodeValue (parentNode, nodeName, None, True)
         if retVal is None:
             return defVal
@@ -252,22 +252,22 @@ class XMLCreater:
     def __init__ (self):
         self.__impl = getDOMImplementation()
 
-    # ´´½¨ XML Document
+    # åˆ›å»º XML Document
     def createDocument (self, rootTag):
         return self.__impl.createDocument(None, rootTag, None)
 
-    # È¡µÃ XML ÎÄµµ¸ù½Úµã
+    # å–å¾— XML æ–‡æ¡£æ ¹èŠ‚ç‚¹
     def getDocumentRoot (self, xDoc):
         return xDoc.documentElement
 
-    # # ÔÚ¸¸½ÚµãÏÂ²åÈëÒ»¸ö¿Õ×Ó½Úµã
+    # # åœ¨çˆ¶èŠ‚ç‚¹ä¸‹æ’å…¥ä¸€ä¸ªç©ºå­èŠ‚ç‚¹
     # def insertNode (self, xDoc, parentNode, nodeName):
     #     childNode = xDoc.createElement (nodeName)
     #     if childNode is not None:
     #         parentNode.appendChild (childNode)
     #     return childNode
 
-    # ¸ù¾İÖ¸¶¨µÄ½ÚµãÃûÔÚ¸¸½ÚµãÏÂ²åÈëÒ»¸ö¿Õ½Úµã
+    # æ ¹æ®æŒ‡å®šçš„èŠ‚ç‚¹ååœ¨çˆ¶èŠ‚ç‚¹ä¸‹æ’å…¥ä¸€ä¸ªç©ºèŠ‚ç‚¹
     def insertSpeicNode (self, xDoc, parentNode, nodeName):
         x = XMLParser ()
 
@@ -288,7 +288,7 @@ class XMLCreater:
         parentNode.appendChild (newTextNode)
         return newTextNode
 
-    # ÔÚ½ÚµãÖĞ²åÈëÎÄ±¾Öµ
+    # åœ¨èŠ‚ç‚¹ä¸­æ’å…¥æ–‡æœ¬å€¼
     def insertNodeText (self, xDoc, node, value, type = 'text'):
         if value.find (']]>') > -1:
             type = 'text'
@@ -310,13 +310,13 @@ class XMLCreater:
     #     newTextNode.appendChild (textNode)
     #     return newTextNode
 
-    # ¸ù¾İÖ¸¶¨µÄ½ÚµãÃû²åÈëÒ»¸öÎÄ±¾½Úµã
+    # æ ¹æ®æŒ‡å®šçš„èŠ‚ç‚¹åæ’å…¥ä¸€ä¸ªæ–‡æœ¬èŠ‚ç‚¹
     def insertSpeicNodeText (self, xDoc, parentNode, nodeName, value, type = 'text'):
         newTextNode = self.insertSpeicNode (xDoc, parentNode, nodeName)
         self.insertNodeText (xDoc, newTextNode, value, type)
         return newTextNode
     
-    # # ÔÚ¸¸½ÚµãÏÂ²åÈëÒ»¸ö×ÓÎÄ±¾½Úµã
+    # # åœ¨çˆ¶èŠ‚ç‚¹ä¸‹æ’å…¥ä¸€ä¸ªå­æ–‡æœ¬èŠ‚ç‚¹
     # def insertChildNodeText (self, xDoc, parentNode, name, value, type = 'text'):
     #     childNode = self.insertNode (xDoc, parentNode, name)
     #     return self.insertNodeText (xDoc, childNode, value, type)
@@ -383,8 +383,8 @@ def parserTest ():
     x = XMLParser ()
     mdom = x.ParseString (xstr)
     root = x.getFirstNode (mdom, "conf")
-    print x.getSpeicNodeText (root, "shake")
-    print x.getSpeicNodeList (root, "shake")
+    print (x.getSpeicNodeText (root, "shake"))
+    print (x.getSpeicNodeList (root, "shake"))
 
 def parserTest2 ():
     xstr = "<conf><menu><shake>1</shake></menu><shake>2</shake></conf>"
@@ -395,7 +395,7 @@ def parserTest2 ():
 
     fishNodeList = x.getSpeicNodeList (root, "Fish")
     for fishNode in fishNodeList:
-        print x.getSpeicNodeText (fishNode, "ID"), x.getSpeicNodeText (fishNode, "Name")
+        print (x.getSpeicNodeText (fishNode, "ID"), x.getSpeicNodeText (fishNode, "Name"))
 
 def createrTest ():
     # x = XMLCreater ('data')
@@ -425,7 +425,7 @@ def attribTest ():
     root = x.getFirstNode (mdom, "data")
 
     #print x.getSpeicNodeAttribList (root, "user/module/fishpond/buy/enforceid").keys ()
-    print x.getSpeicNodeAttribValue (root, "user/module/fishpond/buy/enforceid", "enable")
+    print (x.getSpeicNodeAttribValue (root, "user/module/fishpond/buy/enforceid", "enable"))
 
 if __name__ == '__main__':
     createrTest ()
