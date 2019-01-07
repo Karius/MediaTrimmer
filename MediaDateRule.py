@@ -5,7 +5,7 @@
 from BaseType import Result
 from MediaRule import MediaProcessRule
 import datetime
-import EXIF
+import exiftool
 import os
 
 
@@ -83,6 +83,7 @@ class MediaDateProcessRule (MediaProcessRule):
 
     def __init__ (self, extList, partnerExt = None, partnerFlag = PF_FOLLOWMAIN, methodList = [EXIF, FILENAME, FILEDATE]):
         MediaProcessRule.__init__ (self, extList, partnerExt, partnerFlag, methodList)
+        self.exiftool = exiftool.ExifTool ()
 
 
 
@@ -165,18 +166,24 @@ class MediaDateProcessRule (MediaProcessRule):
             # elif tags.has_key ("DateTime"):
             #     return ExifDateParser.Parse (tags["DateTime"])
 
-            try:
-                f = file (fullpath, "rb")
-                try:
-                    tags = EXIF.process_file (f)
-                finally:
-                    f.close ()
 
-                for k in ["EXIF DateTimeOriginal", "EXIF DateTimeDigitized", "EXIF DateTime"]:
-                    if tags.has_key (k):
-                        return ExifDateParser.Parse (str(tags[k]))
-            except IOError:
-                pass
+            with self.exiftool:
+                tags = self.exiftool.get_tags (["DateTimeOriginal", "DateTimeDigitized", "DateTime"], fullpath)
+            for k in ["DateTimeOriginal", "DateTimeDigitized", "DateTime"]:
+                if k in tags:
+                    return ExifDateParser.Parse (str(tags[k]))
+            # try:
+            #     f = file (fullpath, "rb")
+            #     try:
+            #         tags = EXIF.process_file (f)
+            #     finally:
+            #         f.close ()
+
+            #     for k in ["EXIF DateTimeOriginal", "EXIF DateTimeDigitized", "EXIF DateTime"]:
+            #         if tags.has_key (k):
+            #             return ExifDateParser.Parse (str(tags[k]))
+            # except IOError:
+            #     pass
 
             return None
 

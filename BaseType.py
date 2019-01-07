@@ -178,7 +178,8 @@ class Result:
         self.__EnableSetAttrValue = attrVal # 根据用户设置去允许或禁止修改属性值
 
     # 本类对象实例用于条件判断时该函数将被调用
-    def __nonzero__ (self):
+    #def __nonzero__ (self): # python3 中改为 __bool__()
+    def __bool__ (self):
         return self.__BoolValue
 
     # 是否为内部属性
