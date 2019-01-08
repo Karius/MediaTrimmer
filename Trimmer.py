@@ -5,7 +5,7 @@
 from FileLocation import FileLocationManager
 from MediaRule import MediaRuleManager
 from MediaDateRule import MediaDateProcessRule
-from Tools import ScanDir, path2Unicode
+from Tools import ScanDir
 from Config import MTCfgData, MTConfig
 import os
 
@@ -38,15 +38,22 @@ class MediaTrimmer (object):
                         return n
             return defName
 
+        # 确保rootDir是绝对路径
+        rootDir = os.path.abspath (rootDir)
+
         if targetDir is None:
             targetDir = rootDir
+        else:
+            targetDir = os.path.abspath (targetDir)
         if existsDir is None:
             existsDir = os.path.join (targetDir, "_Repeat")
+        else:
+            existsDir = os.path.join (os.path.abspath (existsDir), "_Repeat")
 
         fileList = ScanDir (rootDir, True, level)
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
-        for mediaName in fileList:
+        for mediaName in fileList:            
             r = self.__MediaRuleManager.DoAction (mediaName)
             if r:
                 self.__FileLocationManager.AddFile (mediaName, r.data)
@@ -72,9 +79,8 @@ class MediaTrimmer (object):
 
         cmdAll = (self.__outputCfg.cmd_head + cmdBody + self.__outputCfg.cmd_tail).replace ("\\n", "\n")
 
-        f = file(outputCmdName, "w")
-        f.write (cmdAll.decode('utf-8', 'ignore').encode('GBK'))
-        #f.write (cmdAll)
+        f = open(outputCmdName, "w")
+        f.write (cmdAll)
         f.close ()
 
 ####################################################################
