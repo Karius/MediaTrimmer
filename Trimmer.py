@@ -46,7 +46,7 @@ class MediaTrimmer (object):
         fileList = ScanDir (rootDir, True, level)
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
-        for mediaName in fileList:
+        for mediaName in fileList:            
             r = self.__MediaRuleManager.DoAction (mediaName)
             if r:
                 self.__FileLocationManager.AddFile (mediaName, r.data)
@@ -72,9 +72,9 @@ class MediaTrimmer (object):
 
         cmdAll = (self.__outputCfg.cmd_head + cmdBody + self.__outputCfg.cmd_tail).replace ("\\n", "\n")
 
-        f = file(outputCmdName, "w")
-        f.write (cmdAll.decode('utf-8', 'ignore').encode('GBK'))
-        #f.write (cmdAll)
+        f = open(outputCmdName, "w")
+        #f.write (cmdAll.decode('utf-8', 'ignore').encode('GBK'))
+        f.write (cmdAll)
         f.close ()
 
 ####################################################################

@@ -84,6 +84,10 @@ class MediaDateProcessRule (MediaProcessRule):
     def __init__ (self, extList, partnerExt = None, partnerFlag = PF_FOLLOWMAIN, methodList = [EXIF, FILENAME, FILEDATE]):
         MediaProcessRule.__init__ (self, extList, partnerExt, partnerFlag, methodList)
         self.exiftool = exiftool.ExifTool ()
+        self.exiftool.start ()
+
+    def __del__ (self):
+        self.exiftool.terminate ()
 
 
 
@@ -167,8 +171,8 @@ class MediaDateProcessRule (MediaProcessRule):
             #     return ExifDateParser.Parse (tags["DateTime"])
 
 
-            with self.exiftool:
-                tags = self.exiftool.get_tags (["DateTimeOriginal", "DateTimeDigitized", "DateTime"], fullpath)
+            #with self.exiftool:
+            tags = self.exiftool.get_tags (["DateTimeOriginal", "DateTimeDigitized", "DateTime"], fullpath)
             for k in ["DateTimeOriginal", "DateTimeDigitized", "DateTime"]:
                 if k in tags:
                     return ExifDateParser.Parse (str(tags[k]))
