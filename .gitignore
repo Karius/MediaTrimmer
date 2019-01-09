@@ -4,5 +4,6 @@
 *.log
 *.cmd
 *.spec
+*.mts
 dist
 build
