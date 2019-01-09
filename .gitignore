@@ -6,5 +6,6 @@
 *.spec
 *.mts
 *.m2ts
+*.mts
 dist
 build
