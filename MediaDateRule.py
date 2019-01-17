@@ -173,9 +173,18 @@ class MediaDateProcessRule (MediaProcessRule):
 
             #with self.exiftool:
             tags = self.exiftool.get_tags (["DateTimeOriginal", "DateTimeDigitized", "DateTime"], fullpath)
+            
+            # exif_tool 返回的exif标签带有分组名，例如"EXIF:DateTimeOriginal"
+            # 所以下面这个循环做的就是去掉分组名：
+            exif_tags = {}
+            for tag in tags:
+                exif_tags[tag.split(":")[-1]] = tags[tag]
+
+            # print ("tags>>>>:", {x.split(":")[-1] for x in tags})
             for k in ["DateTimeOriginal", "DateTimeDigitized", "DateTime"]:
-                if k in tags:
-                    return ExifDateParser.Parse (str(tags[k]))
+                #print ("SPLIT::::::::::::", k.split(":")[-1])
+                if k in exif_tags:
+                    return ExifDateParser.Parse (str(exif_tags[k]))
             # try:
             #     f = file (fullpath, "rb")
             #     try:
