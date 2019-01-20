@@ -70,14 +70,14 @@ class FileLocationManager (object):
     # TargetPath: 目标路径
     def AddFile (self, srcFullpath, TargetPath):
         cell = self.GetCellByTargetPath (TargetPath)
-        print ("SrcFullPath:%s, [Target]:%s" % (srcFullpath,TargetPath), cell)
+        #print ("SrcFullPath:%s, [Target]:%s" % (srcFullpath,TargetPath), cell)
 
         if cell is None:
             cell = FileLocationCell (TargetPath)
             self.__FLCellList.Append (cell)
 
         cell.Add (srcFullpath)
-        print (cell.FileList ().Dict ())
+        #print (cell.FileList ().Dict ())
 
     # 返回 FileLocationCell 类实例的列表
     def GetCellList (self):
