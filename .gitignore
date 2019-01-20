@@ -9,3 +9,4 @@
 *.mts
 dist
 build
+test
