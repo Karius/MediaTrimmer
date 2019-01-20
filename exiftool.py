@@ -218,17 +218,12 @@ class ExifTool(object):
         """
         if not self.running:
             raise ValueError("ExifTool instance not running.")
-        #print ("INPUT: ")
-        #print (b"\n".join(params + (b"-execute\n",)))
         self._process.stdin.write(b"\n".join(params + (b"-execute\n",)))
         self._process.stdin.flush()
         output = b""
         fd = self._process.stdout.fileno()
         while not output[-32:].strip().endswith(sentinel):
             output += os.read(fd, block_size)
-        #print ("Output: ")
-        #print (output)
-        #print ("\n")
         return output.strip()[:-len(sentinel)]
 
     def execute_json(self, *params):
