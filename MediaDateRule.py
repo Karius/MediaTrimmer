@@ -162,15 +162,6 @@ class MediaDateProcessRule (MediaProcessRule):
         if method == self.EXIF:
             ExifDateParser = DateTimeStringParser ()
 
-            # 之前使用的exif 解析器是随便找的，功能不太完整，IFD识别不了，现在换成EXIF.py
-            # tags = exif_simple.parse (fullpath, 0, 0);
-
-            # if tags.has_key ("DateTimeOriginal"):
-            #     return ExifDateParser.Parse (tags["DateTimeOriginal"])
-            # elif tags.has_key ("DateTime"):
-            #     return ExifDateParser.Parse (tags["DateTime"])
-
-
             #with self.exiftool:
             tags = self.exiftool.get_tags (["DateTimeOriginal", "DateTimeDigitized", "DateTime"], fullpath)
             
@@ -185,19 +176,6 @@ class MediaDateProcessRule (MediaProcessRule):
                 #print ("SPLIT::::::::::::", k.split(":")[-1])
                 if k in exif_tags:
                     return ExifDateParser.Parse (str(exif_tags[k]))
-            # try:
-            #     f = file (fullpath, "rb")
-            #     try:
-            #         tags = EXIF.process_file (f)
-            #     finally:
-            #         f.close ()
-
-            #     for k in ["EXIF DateTimeOriginal", "EXIF DateTimeDigitized", "EXIF DateTime"]:
-            #         if tags.has_key (k):
-            #             return ExifDateParser.Parse (str(tags[k]))
-            # except IOError:
-            #     pass
-
             return None
 
         elif method == self.FILENAME:

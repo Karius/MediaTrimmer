@@ -27,7 +27,11 @@ class MediaTrimmer (object):
         self.__MediaRuleManager    = MediaRuleManager (mediaRuleList)
         self.__FileLocationManager = FileLocationManager ()
 
-
+    # outputCmdName: 输出的批处理文件名
+    # rootDir: 待处理的根目录
+    # targetDir: 移动到的根目录
+    # existsDir: 目标文件已存在时将重名文件存方的目录
+    # level: 目录扫描层数
     def Scan (self, outputCmdName, rootDir, targetDir = None, existsDir = None, level = None):
 
         # 扫描root目录，查找 name 开头的目录，如果有则返回该目录，否则返回defName参数指定的字符串
@@ -41,15 +45,18 @@ class MediaTrimmer (object):
         # 确保rootDir是绝对路径
         rootDir = os.path.abspath (rootDir)
 
+        # 如果未蛇者目标目录则将目标目录设为源目录
         if targetDir is None:
             targetDir = rootDir
         else:
             targetDir = os.path.abspath (targetDir)
+        # 当existsDir目录未设置时给个默认目录
         if existsDir is None:
             existsDir = os.path.join (targetDir, "_Repeat")
         else:
             existsDir = os.path.join (os.path.abspath (existsDir), "_Repeat")
 
+        # 开始扫描指定根目录，所有文件存在fileList中
         fileList = ScanDir (rootDir, True, level)
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
@@ -61,8 +68,8 @@ class MediaTrimmer (object):
 
         # 处理收集完成的所有媒体文件
         # 遍历每个目标目录相同的 Cell 列表
-        cmdBody = ""
-        for cell in self.__FileLocationManager.GetCellList ():
+        cmdBody = ""        
+        for cell in self.__FileLocationManager.GetCellList (): # 每个Cell中保存的都是相同目标目录的文件
             # 这是一个参数，指定可以使用已存在的目标目录，比如自动生成的目标目录为:1989-06-04 但如果有个已存在的目录1989-06-04_XXX，则使用这个目录作为目标目录，如果有多个相似的则使用第一个
             isUseExistsTargetPath = True 
             if isUseExistsTargetPath:
@@ -74,7 +81,7 @@ class MediaTrimmer (object):
             cellExistsDir = os.path.join (existsDir, defCellTargetPath)
 
             for mediaName in cell.FileList ():
-                line = self.__outputCfg.cmd_body_single.replace (u"?SRC_MEDIA_ROOT_DIR?", mediaName).replace (u"?TARGET_ROOT_DIR?", cellTargetDir).replace (u"?EXISTS_ROOT_DIR?", cellExistsDir)
+                line = self.__outputCfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
                 cmdBody = cmdBody + line
 
         cmdAll = (self.__outputCfg.cmd_head + cmdBody + self.__outputCfg.cmd_tail).replace ("\\n", "\n")

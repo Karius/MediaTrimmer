@@ -119,7 +119,7 @@ class MediaRuleManager (object):
         return Result (False)
 
     def DoAction (self, fullpath):
-        rule = self.IsMediaRelevantFile (fullpath)
-        if rule:
-            return rule.rule.DoProcess(fullpath)
+        r = self.IsMediaRelevantFile (fullpath)
+        if r:
+            return r.rule.DoProcess(fullpath)
         return Result (False, {'reason':1})
