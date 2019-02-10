@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from XMLUtility import XMLParser
-from MediaRule import MediaProcessRule
-from MediaDateRule import MediaDateProcessRule
+#from MediaRule import MediaProcessRule
+#from MediaDateRule import MediaDateProcessRule
 import os
 
 class MTCfgData (object):
@@ -49,7 +49,8 @@ class MTCfgData (object):
 class MTConfig (object):
 
     # 所有 MediaProcessRule 的子类都需将其类名称放在此列表中
-    MEDIA_RULE_CLASS_LIST = [MediaDateProcessRule]
+    #MEDIA_RULE_CLASS_LIST = [MediaDateProcessRule]
+    MEDIA_RULE_CLASS_LIST = []
 
     def __init__ (self):
         self.__CfgData = MTCfgData ()
