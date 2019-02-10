@@ -3,12 +3,13 @@
 
 
 from FileLocation import FileLocationManager
-from MediaRule import MediaRuleManager
-from MediaDateRule import MediaDateProcessRule
+#from MediaRule import MediaRuleManager
+#from MediaDateRule import MediaDateProcessRule
 from Tools import ScanDir
 from Config import MTCfgData, MTConfig
 import os
-
+from DateParser.DateParser import DateParseManager
+from DateParser.ExifParser import ExifParser
 
 class MediaTrimmer (object):
     def __init__ (self, analystCfg, outputCfg):
@@ -16,15 +17,15 @@ class MediaTrimmer (object):
         self.__outputCfg  = outputCfg
 
         mediaRuleList = []
-        for rule in self.__analystCfg.ruleList:
-            # 遍历当前所有的媒体处理规则派生类（在 MTConfig.MEDIA_RULE_CLASS_LIST 中定义)
-            for v in MTConfig.MEDIA_RULE_CLASS_LIST:
-                if v.RULE_ID == rule.typeid:  # 如果其 ID 符合设置中的 ID 则创建一个其类对象
-                    ruleObj = v (rule.extList, rule.partner, rule.flags, rule.methodList)
+        # for rule in self.__analystCfg.ruleList:
+        #     # 遍历当前所有的媒体处理规则派生类（在 MTConfig.MEDIA_RULE_CLASS_LIST 中定义)
+        #     for v in MTConfig.MEDIA_RULE_CLASS_LIST:
+        #         if v.RULE_ID == rule.typeid:  # 如果其 ID 符合设置中的 ID 则创建一个其类对象
+        #             ruleObj = v (rule.extList, rule.partner, rule.flags, rule.methodList)
                 
-            mediaRuleList.append (ruleObj)
+        #     mediaRuleList.append (ruleObj)
 
-        self.__MediaRuleManager    = MediaRuleManager (mediaRuleList)
+        self.__MediaRuleManager    = None #MediaRuleManager (mediaRuleList)
         self.__FileLocationManager = FileLocationManager ()
 
     # outputCmdName: 输出的批处理文件名
@@ -60,10 +61,17 @@ class MediaTrimmer (object):
         fileList = ScanDir (rootDir, True, level)
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
-        for mediaName in fileList:            
-            r = self.__MediaRuleManager.DoAction (mediaName)
-            if r:
-                self.__FileLocationManager.AddFile (mediaName, r.data)
+        for mediaName in fileList:
+            parserName, parser = DateParseManager.TypeParser (mediaName)
+            if parserName is not None:
+                print (mediaName, parserName, parser.Date (mediaName))
+            else:
+                print ("<No Support File", mediaName)
+            
+            #r = self.__MediaRuleManager.DoAction (mediaName)
+            
+            #if r:
+            #    self.__FileLocationManager.AddFile (mediaName, r.data)
 
 
         # 处理收集完成的所有媒体文件
