@@ -3,8 +3,6 @@
 
 
 from FileLocation import FileLocationManager
-#from MediaRule import MediaRuleManager
-#from MediaDateRule import MediaDateProcessRule
 from Tools import ScanDir
 from Config import MTCfgData, MTConfig
 import os
@@ -12,20 +10,9 @@ from DateParser.DateParser import DateParseManager
 from DateParser.ExifParser import ExifParser
 
 class MediaTrimmer (object):
-    def __init__ (self, analystCfg, outputCfg):
-        self.__analystCfg = analystCfg
+    def __init__ (self, outputCfg):
         self.__outputCfg  = outputCfg
 
-        mediaRuleList = []
-        # for rule in self.__analystCfg.ruleList:
-        #     # 遍历当前所有的媒体处理规则派生类（在 MTConfig.MEDIA_RULE_CLASS_LIST 中定义)
-        #     for v in MTConfig.MEDIA_RULE_CLASS_LIST:
-        #         if v.RULE_ID == rule.typeid:  # 如果其 ID 符合设置中的 ID 则创建一个其类对象
-        #             ruleObj = v (rule.extList, rule.partner, rule.flags, rule.methodList)
-                
-        #     mediaRuleList.append (ruleObj)
-
-        self.__MediaRuleManager    = None #MediaRuleManager (mediaRuleList)
         self.__FileLocationManager = FileLocationManager ()
 
     # outputCmdName: 输出的批处理文件名
@@ -37,16 +24,17 @@ class MediaTrimmer (object):
 
         # 扫描root目录，查找 name 开头的目录，如果有则返回该目录，否则返回defName参数指定的字符串
         def getSimilarDir (root, name, defName):
-            for n in os.listdir (root):
-                if os.path.isdir(os.path.join (root, n)):
-                    if n.lower().find (name.lower()) == 0:
-                        return n
+            if os.path.exists (root):
+                for n in os.listdir (root):
+                    if os.path.isdir(os.path.join (root, n)):
+                        if n.lower().find (name.lower()) == 0:
+                            return n
             return defName
 
         # 确保rootDir是绝对路径
         rootDir = os.path.abspath (rootDir)
 
-        # 如果未蛇者目标目录则将目标目录设为源目录
+        # 如果未设置目标目录则将目标目录设为源目录
         if targetDir is None:
             targetDir = rootDir
         else:
@@ -64,7 +52,9 @@ class MediaTrimmer (object):
         for mediaName in fileList:
             parserName, parser = DateParseManager.TypeParser (mediaName)
             if parserName is not None:
-                print (mediaName, parserName, parser.Date (mediaName))
+                dateStr = parser.Date(mediaName).strftime("%Y-%m-%d")
+                self.__FileLocationManager.AddFile (mediaName, dateStr)
+                print (mediaName, parserName, dateStr)
             else:
                 print ("<No Support File", mediaName)
             
@@ -122,7 +112,7 @@ def Main (argv):
     # pCmdName      = "1a.cmd"
     # pMediaSrcRoot = "d:\\@My\\Mobile\\HTC.Desire.G7\\SDCard\\DCIM"
 
-    pAnalystCfgID = None
+    #pAnalystCfgID = None
     pOutputCfgID  = None
     pCmdName      = "Go.cmd"
     pConfigFile   = "Config.xml"
@@ -132,28 +122,35 @@ def Main (argv):
 
     import getopt
     try:
-        opts, args = getopt.getopt (argv, "c:a:m:t:e:s", ["cmdname=", "analystid=", "outputid=", "mediaroot=", "targetroot=", "existsroot=", "config="])
+        opts, args = getopt.getopt (argv, "c:a:m:t:e:s", ["cmdname=", "customizeid=", "outputid=", "mediaroot=", "targetroot=", "existsroot=", "config="])
 
         for opt, arg in opts:
+            # 输出的批处理文件名，默认Go.cmd
             if opt in ("-c", "--cmdname"):
                 pCmdName = arg
-            elif opt in ("-a", "--analystid"):
-                pAnalystCfgID = arg
+            # Config.xml文件中的提取器行为ID，如All：<config><customizeid id="All"></customizeid></config>
+            elif opt in ("-a", "--customizeid"):
+                pCustomizeCfgID = arg
+            # Config.xml文件中的输出格式ID，如moveto：<config><output id="moveto"></output></config>
             elif opt in ("-o", "--outputid"):
                 pOutputCfgID = arg
+            # 待扫描的文件夹
             elif opt in ("-m", "--mediaroot"):
                 pMediaSrcRoot = arg
+            # 移动到的目录文件夹
             elif opt in ("-t", "--targetroot"):
                 pMediaTargetRoot = arg
+            # 当移动后的目的文件存在时将同名文件转存到的文件夹
             elif opt in ("-e", "--existsroot"):
                 pMediaExistsRoot = arg
+            # 指定配置文件名，默认Config.xml
             elif opt in ("-s", "--config"):
                 pConfigFile = arg
     except:
         pass
 
-    if pAnalystCfgID is None:
-        print ("Config ID(Analyst) is null!")
+    if pCustomizeCfgID is None:
+        print ("Config ID(Customize) is null!")
         sys.exit (1)
 
     if pOutputCfgID is None:
@@ -173,17 +170,24 @@ def Main (argv):
         print ("Config.xml not exists.")
         sys.exit (2)
 
-    analystCfg = mtc.GetAnalystConfig (pAnalystCfgID)
-    outputCfg  = mtc.GetOutputConfig (pOutputCfgID)
+    customizeCfg = mtc.GetCustomizeConfig (pCustomizeCfgID)
+    for parserBehivor in customizeCfg.parserList:
+        parser = DateParseManager.parserByName (parserBehivor.id)
+        if parser is not None:
+            parser.SetTypeList (parserBehivor.fileTypeList)
+            print (parserBehivor.id, parserBehivor.fileTypeList)
 
-    if analystCfg is None:
-        print ("analystCfg id (%s) not exists" % (pAnalystCfgID))
-        sys.exit (3)
+    outputCfg  = mtc.GetOutputConfig (pOutputCfgID)
+    
+
+    # if analystCfg is None:
+    #     print ("analystCfg id (%s) not exists" % (pAnalystCfgID))
+    #     sys.exit (3)
     if outputCfg is None:
         print ("outputCfg id (%s) not exists" % (pOutputCfgID))
         sys.exit (3)
 
-    mt = MediaTrimmer (analystCfg, outputCfg)
+    mt = MediaTrimmer (outputCfg)
 
     mt.Scan (pCmdName, pMediaSrcRoot, pMediaTargetRoot, pMediaExistsRoot)
 

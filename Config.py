@@ -9,22 +9,20 @@ import os
 class MTCfgData (object):
     
     #######################################################
-    class Analyst (object):
-        class Rule (object):
+    # 定制Parser的行为
+    class BehaviorCustomize (object):
+        class Behavior (object):
             def __init__ (self):
-                self.typeid     = ""
-                self.extList    = []
-                self.partner    = ""
-                self.flags      = 0
-                self.methodList = []
+                self.id          = ""
+                self.fileTypeList    = ""
 
 
         def __init__ (self):
             self.id       = ""
-            self.ruleList = []
+            self.parserList = []
 
-        def AddRule (self, rule):
-            self.ruleList.append (rule)
+        def AddParserBehavior (self, parser):
+            self.parserList.append (parser)
 
     #######################################################
     class Output (object):
@@ -36,11 +34,11 @@ class MTCfgData (object):
 
     #######################################################
     def __init__ (self):
-        self.analystList = {}
+        self.customizeList = {}
         self.outputList  = {}
 
-    def AddAnalyst (self, analyst):
-        self.analystList[analyst.id] = analyst
+    def AddCustomize (self, customize):
+        self.customizeList[customize.id] = customize
 
     def AddOutput (self, output):
         self.outputList[output.id] = output
@@ -48,42 +46,25 @@ class MTCfgData (object):
 
 class MTConfig (object):
 
-    # 所有 MediaProcessRule 的子类都需将其类名称放在此列表中
-    #MEDIA_RULE_CLASS_LIST = [MediaDateProcessRule]
     MEDIA_RULE_CLASS_LIST = []
 
     def __init__ (self):
         self.__CfgData = MTCfgData ()
 
-    def TranslateFlagValue (self, typeid, flagStr):
+    def TranslateFlagValue (self, parserID, flagStr):
         for c in self.MEDIA_RULE_CLASS_LIST:
-            if c.RULE_ID == typeid:
+            if c.RULE_ID == parserID:
                 return c.TranslateFlagValue (flagStr)
 
         return 0
 
-        # if typeid.lower () == "date":
-        #     if flagStr == "PF_FOLLOWMAIN":
-        #         return MediaProcessRule.PF_FOLLOWMAIN
-        #     elif flagStr == "PF_GETINFO":
-        #         return MediaProcessRule.PF_GETINFO
-        # return 0
-
-    def TranslateMethodValue (self, typeid, methodStr):
+    def TranslateMethodValue (self, parserID, methodStr):
         for c in self.MEDIA_RULE_CLASS_LIST:
-            if c.RULE_ID == typeid:
+            if c.RULE_ID == parserID:
                 return c.TranslateMethodValue (methodStr)
 
         return None
 
-        # if typeid.lower () == "date":
-        #     if methodStr == "EXIF":
-        #         return MediaDateProcessRule.EXIF
-        #     elif methodStr == "FILENAME":
-        #         return MediaDateProcessRule.FILENAME
-        #     elif methodStr == "FILEDATE":
-        #         return MediaDateProcessRule.FILEDATE
-        # return None
 
     def ReadConfig (self, cfgFile):
         if not os.path.exists (cfgFile):
@@ -97,47 +78,35 @@ class MTConfig (object):
         if cfgroot is None:
             return False
 
-        # 解析 <analyst></analyst> 的设置
-        analystNodeList = xParser.getSpeicNodeList (cfgroot, "analyst")
-        for analystNode in analystNodeList:
+        # 解析 <customize></customize> 的设置
+        customizeNodeList = xParser.getSpeicNodeList (cfgroot, "customize")
+        for customizeNode in customizeNodeList:
 
-            analystID = xParser.getNodeAttribValue (analystNode, "id")
-            if analystID is None:
+            customizeID = xParser.getNodeAttribValue (customizeNode, "id")
+            if customizeID is None:
                 continue
 
-            analyst    = MTCfgData.Analyst ()
-            analyst.id = analystID
+            customize    = MTCfgData.BehaviorCustomize ()
+            customize.id = customizeID
 
-            # 获取 rule 列表
-            ruleNodeList = xParser.getSpeicNodeList (analystNode, "rule")
-            for ruleNode in ruleNodeList:
-                typeid = xParser.getNodeAttribValue (ruleNode, "method")
-                if typeid is None or len (typeid) <= 0:
+            # 获取 parser 列表
+            parserNodeList = xParser.getSpeicNodeList (customizeNode, "parser")
+            for parserNode in parserNodeList:
+                parserID = xParser.getNodeAttribValue (parserNode, "id")
+                if parserID is None or len (parserID) <= 0:
                     continue
 
-                rule = MTCfgData.Analyst.Rule ()
-                rule.typeid  = typeid
+                behavior = MTCfgData.BehaviorCustomize.Behavior ()
+                behavior.id  = parserID
                 
-                rule.extList = xParser.GetXmlNodeValueList (ruleNode, "ext", None)
-                if rule.extList is None:
+                behavior.fileTypeList = xParser.GetXmlNodeValueList (parserNode, "filetype", None)
+                if behavior.fileTypeList is None:
                     continue
 
-                rule.partner = xParser.GetXmlNodeValue (ruleNode, "partner", None)
+                #print parserID, rule.flags, rule.methodList #DEBUG
+                customize.AddParserBehavior (behavior)
 
-                # 读取标志
-                flagList = xParser.GetXmlNodeValueList (ruleNode, "flags", [])
-                for f in flagList:
-                    rule.flags = rule.flags | self.TranslateFlagValue (typeid, f)
-
-                # 读取解析方法列表
-                methodList = xParser.GetXmlNodeValueList (ruleNode, "method", [])
-                for m in methodList:
-                    rule.methodList.append (self.TranslateMethodValue (typeid, m))
-
-                #print typeid, rule.flags, rule.methodList #DEBUG
-                analyst.AddRule (rule)
-
-            self.__CfgData.AddAnalyst (analyst)
+            self.__CfgData.AddCustomize (customize)
 
 
         # 解析 <output></output> 的设置
@@ -157,9 +126,9 @@ class MTConfig (object):
         
         return self.__CfgData
 
-    def GetAnalystConfig (self, cfgID):
-        if cfgID in self.__CfgData.analystList.keys ():
-            return self.__CfgData.analystList[cfgID]
+    def GetCustomizeConfig (self, cfgID):
+        if cfgID in self.__CfgData.customizeList.keys ():
+            return self.__CfgData.customizeList[cfgID]
         return None
 
     def GetOutputConfig (self, cfgID):

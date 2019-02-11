@@ -12,7 +12,7 @@ class ExifParser(DateParser):
     #exiftool = ExifTool ()
 
     def __init__ (self):
-        self.setTypeList (("*.jpg", "*.mkv", "*.mts"))
+        self.SetTypeList (("*.jpg", "*.mkv", "*.mts"))
     
     def Date (self, filename):
         #date(year, month, day)
