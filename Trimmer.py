@@ -51,10 +51,17 @@ class MediaTrimmer (object):
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
         for mediaName in fileList:
             parserName, parser = DateParseManager.TypeParser (mediaName)
-            if parserName is not None:
-                dateStr = parser.Date(mediaName).strftime("%Y-%m-%d")
-                self.__FileLocationManager.AddFile (mediaName, dateStr)
-                print (mediaName, parserName, dateStr)
+            if parser is not None:
+                print (mediaName, parserName)
+                """
+                通过提取器解析日期信息，通常是ExifParser，但有些虽然是图片或是视频，但其中并没有包含Exif信息
+                所以这里需要判断一下
+                """
+                dateobj = parser.Date(mediaName)
+                if dateobj is not None:
+                    dateStr = dateobj.strftime("%Y-%m-%d")
+                    self.__FileLocationManager.AddFile (mediaName, dateStr)
+                    print (dateStr)
             else:
                 print ("<No Support File", mediaName)
             
