@@ -2,6 +2,7 @@
 
 import fnmatch
 
+# 解析器管理器
 class DateParseManager (object):
 
     __parserList = {}
@@ -27,6 +28,14 @@ class DateParseManager (object):
     def parserList():
         return DateParseManager.__parserList
     
+    # 根据提取器的名字查找并返回提取器
+    @staticmethod
+    def parserByName (name):
+        for k, v in DateParseManager.__parserList.items ():
+            if k == name:
+                return v
+        return None
+    
     # 检测文件名是否为支持的类型
     @staticmethod
     def TypeParser (filename):
@@ -40,10 +49,10 @@ class DateParseManager (object):
             #        return name, parser
         return None, None
 
-
+# 解析器基类
 class DateParser (object):
     def __init__ (self):
-        self.setTypeList (())
+        self.SetTypeList (())
     
     # 返回一个datetime.date对象
     # 如果解析失败则返回None
@@ -63,9 +72,10 @@ class DateParser (object):
         return self._FileType
 
     """
-    设置列表
+    设置支持的文件类型列表
+    可以由用户自定义。因为例如exiftool支持的文件类型种类繁多，全部写死在程序中不现实，所以可以由用户在配置文件中灵活定义。
     """
-    def setTypeList (self, typeList):
+    def SetTypeList (self, typeList):
         self._FileType = typeList
 
     """
