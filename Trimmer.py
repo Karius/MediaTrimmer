@@ -14,6 +14,7 @@ class MediaTrimmer (object):
         self.__outputCfg  = outputCfg
 
         self.__FileLocationManager = FileLocationManager ()
+        self.__FileLocationList = {}
 
     # outputCmdName: 输出的批处理文件名
     # rootDir: 待处理的根目录
@@ -60,7 +61,9 @@ class MediaTrimmer (object):
                 dateobj = parser.Date(mediaName)
                 if dateobj is not None:
                     dateStr = dateobj.strftime("%Y-%m-%d")
-                    self.__FileLocationManager.AddFile (mediaName, dateStr)
+                    if not (parserName in self.__FileLocationList.keys ()):
+                        self.__FileLocationList[parserName] = FileLocationManager ()
+                    self.__FileLocationList[parserName].AddFile (mediaName, dateStr)
                     print (dateStr)
             else:
                 print ("<No Support File", mediaName)
@@ -72,22 +75,34 @@ class MediaTrimmer (object):
 
 
         # 处理收集完成的所有媒体文件
-        # 遍历每个目标目录相同的 Cell 列表
-        cmdBody = ""        
-        for cell in self.__FileLocationManager.GetCellList (): # 每个Cell中保存的都是相同目标目录的文件
-            # 这是一个参数，指定可以使用已存在的目标目录，比如自动生成的目标目录为:1989-06-04 但如果有个已存在的目录1989-06-04_XXX，则使用这个目录作为目标目录，如果有多个相似的则使用第一个
-            isUseExistsTargetPath = True 
-            if isUseExistsTargetPath:
-                defCellTargetPath = getSimilarDir (targetDir, cell.TargetPath (), cell.TargetPath ())
-            else:
-                defCellTargetPath = cell.TargetPath ()
+        cmdBody = ""
+        # 遍历所有的存储文件定位信息，每种不同的提取器类提取的文件日期放在各自的FileLocationManager对象中
+        for parserName, fileLocatMager in self.__FileLocationList.items ():
+            # 提取器的类名，默认为未知
+            parserClassName = "UNKNOWN"
+            # 根据提取器的ID获取其类实例
+            parserObj = DateParseManager.parserByName (parserName)
+            # 如果取到类实例则获取其类名
+            if parserObj is not None:
+                parserClassName = type (parserObj).__name__
+            # 将提取器的ID和其类名作为注释添加到批处理中，方便查看是由哪类生成的。
+            cmdBody += "REM ParserID:[%s], ClassName:[%s]\n" % (parserName, parserClassName)
+            
+            # 遍历每个目标目录相同的 Cell 列表
+            for cell in fileLocatMager.GetCellList (): # 每个Cell中保存的都是相同目标目录的文件
+                # 这是一个参数，指定可以使用已存在的目标目录，比如自动生成的目标目录为:1989-06-04 但如果有个已存在的目录1989-06-04_XXX，则使用这个目录作为目标目录，如果有多个相似的则使用第一个
+                isUseExistsTargetPath = True 
+                if isUseExistsTargetPath:
+                    defCellTargetPath = getSimilarDir (targetDir, cell.TargetPath (), cell.TargetPath ())
+                else:
+                    defCellTargetPath = cell.TargetPath ()
 
-            cellTargetDir = os.path.join (targetDir, defCellTargetPath)
-            cellExistsDir = os.path.join (existsDir, defCellTargetPath)
+                cellTargetDir = os.path.join (targetDir, defCellTargetPath)
+                cellExistsDir = os.path.join (existsDir, defCellTargetPath)
 
-            for mediaName in cell.FileList ():
-                line = self.__outputCfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
-                cmdBody = cmdBody + line
+                for mediaName in cell.FileList ():
+                    line = self.__outputCfg.cmd_body_single.replace ("?SRC_MEDIA_ROOT_DIR?", mediaName).replace ("?TARGET_ROOT_DIR?", cellTargetDir).replace ("?EXISTS_ROOT_DIR?", cellExistsDir)
+                    cmdBody = cmdBody + line
 
         cmdAll = (self.__outputCfg.cmd_head + cmdBody + self.__outputCfg.cmd_tail).replace ("\\n", "\n")
 
