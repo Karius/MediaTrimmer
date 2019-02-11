@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-  <customize id="All">
+  <customize id="All" parserPriority="EXIF;FILEDATE">
     <parser id="EXIF">
   		<filetype>*.jpg;*.tif;*.png;*.mts;*.m2ts;*.mkv</filetype>
   	</parser>

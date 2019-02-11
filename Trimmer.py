@@ -8,6 +8,7 @@ from Config import MTCfgData, MTConfig
 import os
 from DateParser.DateParser import DateParseManager
 from DateParser.ExifParser import ExifParser
+from DateParser.FiledateParser import FiledateParser
 
 class MediaTrimmer (object):
     def __init__ (self, outputCfg):
@@ -51,27 +52,38 @@ class MediaTrimmer (object):
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
         for mediaName in fileList:
-            parserName, parser = DateParseManager.TypeParser (mediaName)
-            if parser is not None:
-                print (mediaName, parserName)
-                """
-                通过提取器解析日期信息，通常是ExifParser，但有些虽然是图片或是视频，但其中并没有包含Exif信息
-                所以这里需要判断一下
-                """
-                dateobj = parser.Date(mediaName)
-                if dateobj is not None:
-                    dateStr = dateobj.strftime("%Y-%m-%d")
-                    if not (parserName in self.__FileLocationList.keys ()):
-                        self.__FileLocationList[parserName] = FileLocationManager ()
-                    self.__FileLocationList[parserName].AddFile (mediaName, dateStr)
-                    print (dateStr)
-            else:
-                print ("<No Support File", mediaName)
-            
-            #r = self.__MediaRuleManager.DoAction (mediaName)
-            
-            #if r:
-            #    self.__FileLocationManager.AddFile (mediaName, r.data)
+            for parserID in ["EXIF", "FILEDATE"]:
+                parser = DateParseManager.parserByName (parserID)
+                if parser is None:
+                    continue
+                # 如果该提取器无法解析此种类型文件的日期则遍历下一个提取器
+                if not parser.IsType (mediaName):
+                    continue
+                #parserName, parser = DateParseManager.TypeParser (mediaName)
+                parserName = parserID
+                if parser is not None:
+                    print (mediaName, parserName)
+                    """
+                    通过提取器解析日期信息，通常是ExifParser，但有些虽然是图片或是视频，但其中并没有包含Exif信息
+                    所以这里需要判断一下
+                    """
+                    dateobj = parser.Date(mediaName)
+                    if dateobj is not None:
+                        dateStr = dateobj.strftime("%Y-%m-%d")
+                        if not (parserName in self.__FileLocationList.keys ()):
+                            self.__FileLocationList[parserName] = FileLocationManager ()
+                        self.__FileLocationList[parserName].AddFile (mediaName, dateStr)
+                        print (dateStr)
+                        break  # 正确获取到日期，则退出循环
+                    else: # 无法提取日期，这种情况通常发生在媒体文件中不含有EXIF的情况下
+                        pass
+                else:
+                    print ("<No Support File", mediaName)
+                
+                #r = self.__MediaRuleManager.DoAction (mediaName)
+                
+                #if r:
+                #    self.__FileLocationManager.AddFile (mediaName, r.data)
 
 
         # 处理收集完成的所有媒体文件

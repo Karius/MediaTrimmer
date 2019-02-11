@@ -19,6 +19,7 @@ class MTCfgData (object):
 
         def __init__ (self):
             self.id       = ""
+            self.parserPriority = []
             self.parserList = []
 
         def AddParserBehavior (self, parser):
@@ -88,6 +89,11 @@ class MTConfig (object):
 
             customize    = MTCfgData.BehaviorCustomize ()
             customize.id = customizeID
+
+
+            parserPriorityStr = xParser.getNodeAttribValue(customizeNode, "parserPriority")
+            if parserPriorityStr is not None:
+                customize.parserPriority = parserPriorityStr.split (";")
 
             # 获取 parser 列表
             parserNodeList = xParser.getSpeicNodeList (customizeNode, "parser")
