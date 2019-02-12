@@ -52,7 +52,8 @@ class MediaTrimmer (object):
 
         # 扫描收集所有符合条件的媒体文件到 self.__FileLocationManager 对象中
         for mediaName in fileList:
-            for parserID in ["EXIF", "FILEDATE"]:
+            # 按照用户设置的提取器使用优先级进行遍历提取器并使用
+            for parserID in DateParseManager.GetParserPriorityList ():
                 parser = DateParseManager.parserByName (parserID)
                 if parser is None:
                     continue
@@ -205,13 +206,18 @@ def Main (argv):
         sys.exit (2)
 
     customizeCfg = mtc.GetCustomizeConfig (pCustomizeCfgID)
+    # 遍历提取器的自定义行为
     for parserBehivor in customizeCfg.parserList:
         parser = DateParseManager.parserByName (parserBehivor.id)
         if parser is not None:
+            # 设置提取器的针对文件类型列表
             parser.SetTypeList (parserBehivor.fileTypeList)
-            print (parserBehivor.id, parserBehivor.fileTypeList)
+            # print (parserBehivor.id, parserBehivor.fileTypeList)
 
-    outputCfg  = mtc.GetOutputConfig (pOutputCfgID)
+    # 设置提取器使用优先级列表
+    DateParseManager.SetParserPriorityList (customizeCfg.parserPriority)
+
+    outputCfg  = mtc.GetOutputConfig (pOutputCfgID)    
     
 
     # if analystCfg is None:
