@@ -5,5 +5,7 @@
 *.cmd
 *.spec
 *.mts
+*.m2ts
 dist
 build
+test
