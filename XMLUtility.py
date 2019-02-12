@@ -171,7 +171,7 @@ class XMLParser:
     # nulStrRetDefVal : 当取得属性虽然存在，但其值内容却是 "" 这样的空字符串时是否需要返回 defVal，默认为是
     def GetXmlAttrValue (self, parentNode, nodeName, attrName, defVal, nulStrRetDefVal = None):
         x = XMLParser ()
-        val = x.getSpeicNodeAttribValue (userNode, nodeName, attrName)
+        val = x.getSpeicNodeAttribValue (parentNode, nodeName, attrName)
         if val is None:
             return defVal
         if nulStrRetDefVal is None:
