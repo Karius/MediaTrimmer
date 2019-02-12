@@ -6,6 +6,7 @@ import fnmatch
 class DateParseManager (object):
 
     __parserList = {}
+    __parserPriorityList = {}
 
     def __init__ (self):
         pass
@@ -48,6 +49,16 @@ class DateParseManager (object):
             #    if fnmatch.fnmatch (filename, ftype):
             #        return name, parser
         return None, None
+    
+    # 设置提取器的使用优先级列表
+    @staticmethod
+    def SetParserPriorityList (priList):
+        DateParseManager.__parserPriorityList = priList
+
+    # 返回提取器的使用优先级列表
+    @staticmethod
+    def GetParserPriorityList ():
+        return DateParseManager.__parserPriorityList
 
 # 解析器基类
 class DateParser (object):
